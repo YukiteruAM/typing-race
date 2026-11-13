@@ -6,7 +6,7 @@
 <title>Гонка печати</title>
 <style>
 :root{--bg:#0d0d0f;--card:#18181c;--card2:#222228;--line:#2c2c34;--red:#d92c2c;--green:#3ecf6e;--gray:#6e6e78;--text:#f2f2f4;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input{-webkit-user-select:text;user-select:text}
 html,body{position:fixed;width:100%;height:100%;margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 header{display:flex;gap:8px;padding:10px 12px;align-items:center}
@@ -188,7 +188,7 @@ $("#modal").onclick=e=>{if(e.target.id==="modal")$("#modal").classList.remove("o
 
 // ---------- Звук (Web Audio) ----------
 let AC=null,soundOn=LS("snd")!==false;
-function beep(f,d,type,v){if(!soundOn)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.08,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+let adMute=false;function beep(f,d,type,v){if(!soundOn||adMute)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.08,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 const sClick=()=>beep(880,.05,"triangle",.05),sErr=()=>beep(150,.25,"sawtooth",.12),sWin=()=>{beep(660,.12);setTimeout(()=>beep(880,.12),120);setTimeout(()=>beep(1175,.2),240)};
 function drawSnd(){$("#bSnd").textContent=soundOn?"🔊":"🔇"}
 $("#bSnd").onclick=()=>{soundOn=!soundOn;SV("snd",soundOn);drawSnd();sClick()};drawSnd();
@@ -198,8 +198,8 @@ function show(id){if(id!=="play"&&id!=="wait")kin.blur();document.querySelectorA
 function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>tab(b.dataset.go));
-document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else if(g==="top")openTop();else if(g==="friends")openFriends();else if(g==="chat")openChat();else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
-$("#pLogin").onclick=()=>toast("Вход через Яндекс подключим на последнем этапе");
+document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g!=="train"&&needAuth())return;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else if(g==="top")openTop();else if(g==="friends")openFriends();else if(g==="chat")openChat();else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
+$("#pLogin").onclick=()=>AUTH?toast("Ты уже вошёл"):login();
 
 // ---------- Настройки тренировки ----------
 const MODES=[["phrases","Фразы"],["quotes","Цитаты"],["time","На время"],["words","На слова"]];
@@ -237,7 +237,7 @@ function startGame(){
   $("#st-al").textContent=G.limit?"Осталось":"Прогресс";
   box.scrollTop=0;
   mark();upd();
-  show("play");
+  show("play");gp(1);
   $("#kin").value="";foc();
   $("#bars").style.display=D?"block":"none";if(D){D.bot=0;setBars();countdown()}
 }
@@ -307,7 +307,7 @@ function botTick(){
 // ---------- Онлайн (Firebase Realtime Database) ----------
 // Впиши сюда данные из консоли Firebase (Project settings → Your apps → Web)
 const FB_CFG={apiKey:"AIzaSyCaXjkJBY8d3wa3Yur_Up8Z_zghD8CuEeo",authDomain:"word-batle.firebaseapp.com",databaseURL:"https://word-batle-default-rtdb.europe-west1.firebasedatabase.app",projectId:"word-batle",storageBucket:"word-batle.firebasestorage.app",messagingSenderId:"630133258114",appId:"1:630133258114:web:bfb6329d56b35cf347c19b"};
-const UID=LS("uid")||(()=>{const u=Math.random().toString(36).slice(2,10);SV("uid",u);return u})();
+let UID=LS("uid")||(()=>{const u=Math.random().toString(36).slice(2,10);SV("uid",u);return u})();
 let NAME=LS("nick")||(()=>{const n="Игрок"+(100+Math.floor(Math.random()*900));SV("nick",n);return n})();
 let DB=null,NET=null,OFF=0,waitT=null,QUIET=false;const toastQ=m=>{if(!QUIET)toast(m)};
 const srvNow=()=>Date.now()+OFF;
@@ -485,6 +485,46 @@ function sendMsg(){
   DB.ref("chat/msgs").push({u:UID,n:NAME,t:t,ts:SVT()}).catch(e=>toast(errText(e)));
 }
 $("#csend").onclick=sendMsg;$("#cin").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
+// ---------- Яндекс SDK ----------
+let YSDK=null,PL=null,AUTH=false;
+const gp=on=>{try{YSDK&&YSDK.features.GameplayAPI&&YSDK.features.GameplayAPI[on?"start":"stop"]()}catch(e){}};
+const cyrb=t=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<t.length;i++){const c=t.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return 4294967296*(2097151&b)+(a>>>0)};
+const loadSdk=()=>new Promise(ok=>{const e=document.createElement("script");e.src="/sdk.js";e.onload=()=>ok(true);e.onerror=()=>ok(false);document.head.appendChild(e)});
+function setPlayer(){
+  if(!PL)return;AUTH=!!PL.getMode&&PL.getMode()!=="lite";
+  if(AUTH){const id=PL.getUniqueID();if(id)UID="y"+cyrb(id).toString(36);const n=String(PL.getName&&PL.getName()||"").trim();if(n)NAME=n.slice(0,16)}
+}
+function cloudSave(){if(PL&&AUTH&&PL.setData)PL.setData({recs:LS("recs")||{},stats:LS("stats")||{}}).catch(()=>{})}
+function cloudLoad(){
+  if(!PL||!AUTH)return;
+  return PL.getData(["recs","stats"]).then(d=>{
+    const r=LS("recs")||{},cr=d.recs||{};Object.keys(cr).forEach(k=>{if(!(r[k]>=cr[k]))r[k]=cr[k]});SV("recs",r);
+    const ls=LS("stats")||{games:0},cs=d.stats||{games:0};if((cs.games||0)>(ls.games||0))SV("stats",cs);
+    drawHome();drawProfile();
+  }).catch(()=>{});
+}
+function ysInit(){
+  const run=loadSdk().then(ok=>{
+    if(!ok||!window.YaGames)return;
+    return YaGames.init().then(y=>{YSDK=y;
+      return y.getPlayer({scopes:false}).then(p=>{PL=p;setPlayer()}).catch(()=>{}).then(cloudLoad).then(()=>{try{y.features.LoadingAPI.ready()}catch(e){}})});
+  }).catch(()=>{});
+  return Promise.race([run,new Promise(r=>setTimeout(r,4000))]);
+}
+function login(){
+  if(!YSDK){toast("Вход работает внутри Яндекс Игр");return}
+  YSDK.auth.openAuthDialog().then(()=>YSDK.getPlayer({scopes:false})).then(p=>{PL=p;setPlayer();toast("Вы вошли");setTimeout(()=>location.reload(),600)}).catch(()=>toast("Вход отменён"));
+}
+function needAuth(){
+  if(YSDK&&!AUTH){modal('<b>Нужен вход через Яндекс</b><p class="sub">Без входа доступна только тренировка.</p><button class="btn" id="lg">Войти</button>');$("#lg").onclick=()=>{CL();login()};return true}
+  return false;
+}
+function showAd(){
+  if(!YSDK||!YSDK.adv)return;
+  try{YSDK.adv.showFullscreenAdv({callbacks:{onOpen:()=>{adMute=true},onClose:()=>{adMute=document.hidden},onError:()=>{adMute=document.hidden}}})}catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{adMute=document.hidden});
+document.addEventListener("contextmenu",e=>{if(!/INPUT|TEXTAREA/.test(e.target.tagName))e.preventDefault()});
 // ---------- Итог и рекорды ----------
 function finish(failed){
   if(G.done)return;G.done=true;endTimer();kin.blur();
@@ -494,13 +534,13 @@ function finish(failed){
   const recs=LS("recs")||{};const prev=recs[key]||0;const isRec=w>prev&&!failed&&!(D&&D.botWon);
   if(isRec){recs[key]=w;SV("recs",recs)}
   const st=LS("stats")||{games:0,chars:0,accSum:0,best:0};
-  st.games++;st.chars+=G.ok;st.accSum+=acc;st.best=Math.max(st.best,failed?0:w);SV("stats",st);
+  st.games++;st.chars+=G.ok;st.accSum+=acc;st.best=Math.max(st.best,failed?0:w);SV("stats",st);cloudSave();
   $("#rTitle").textContent=D?(D.oppLeft?"Соперник вышел: победа":D.botWon?"Поражение":"Победа!"):failed?"Три ошибки — раунд окончен":"Раунд завершён";
   $("#rWpm").textContent=w;$("#rAcc").textContent=acc+"%";$("#rErr").textContent=G.err;$("#rTime").textContent=Math.round(sec);
   $("#rBest").textContent=Math.max(prev,isRec?w:0);
   $("#rRec").textContent=isRec?"Новый рекорд!":(D?(D.net?"Соперник печатал ":"Бот печатал ")+Math.round(D.wpm)+" слов/мин":"");
   if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w);if(!D&&!failed)submitScore(w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
-  show("result");
+  show("result");gp(0);setTimeout(showAd,700);
 }
 $("#start").onclick=()=>{D=null;startGame()};
 $("#quick").onclick=()=>{S.mode="phrases";S.diff="normal";drawSetup();D=null;startGame()};
@@ -512,12 +552,12 @@ function bestAll(){const r=LS("recs")||{};return Math.max(0,...Object.values(r))
 function drawHome(){$("#homeBest").textContent=bestAll()}
 function statsHtml(){const s=LS("stats")||{games:0,chars:0,accSum:0,best:0};
   return `<b>Моя статистика</b><div class="res"><div><b>${s.games}</b><small>раундов</small></div><div><b>${s.best}</b><small>лучший слов/мин</small></div><div><b>${s.games?Math.round(s.accSum/s.games):0}%</b><small>средняя точность</small></div><div><b>${s.chars}</b><small>верных символов</small></div></div>`}
-function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pIdTxt").textContent="Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
+function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pLogin").style.display=AUTH?"none":"block";$("#pIdTxt").textContent="Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
 $("#bStats").onclick=()=>modal(statsHtml());
 $("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
 drawHome();drawProfile();
-$("#nickSave").onclick=()=>{const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
-QUIET=true;fbReady().then(initNet).catch(()=>{}).then(()=>{QUIET=false});
+$("#nickSave").onclick=()=>{if(AUTH){toast("Ник берётся из аккаунта Яндекса");return}const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
+QUIET=true;ysInit().then(()=>fbReady()).then(initNet).catch(()=>{}).then(()=>{QUIET=false});
 </script>
 </body>
 </html>
