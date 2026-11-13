@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Гонка печати</title>
+<style>
+:root{--bg:#0d0d0f;--card:#18181c;--card2:#222228;--line:#2c2c34;--red:#d92c2c;--green:#3ecf6e;--gray:#6e6e78;--text:#f2f2f4;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+header{display:flex;gap:8px;padding:10px 12px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:9px 14px;font-size:14px;cursor:pointer}
+.pill.grow{flex:1}
+main{flex:1;min-height:0;-webkit-overflow-scrolling:touch;overflow-y:auto;padding:4px 14px 16px}
+.scr{display:none}.scr.on{display:block}
+h1{font-size:26px;margin:8px 0 4px}h2{font-size:20px;margin:14px 0 8px}
+.sub{color:var(--gray);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.btn{display:block;width:100%;background:var(--red);color:#fff;border:0;border-radius:16px;padding:16px;font-size:17px;font-weight:700;cursor:pointer}
+.btn:active{transform:scale(.98)}.btn.ghost{background:var(--card2);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px 14px;font-size:15px;cursor:pointer}
+.chip.sel{background:var(--red);border-color:var(--red);font-weight:700}
+.lbl{color:var(--gray);font-size:13px;margin:12px 0 6px}
+.game{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--text);cursor:pointer;font:inherit}
+.game .ic{font-size:26px;width:46px;height:46px;border-radius:14px;background:var(--card2);display:grid;place-items:center}
+.game small{display:block;color:var(--gray)}
+.tag{margin-left:auto;font-size:12px;color:var(--gray);border:1px solid var(--line);border-radius:999px;padding:3px 9px;white-space:nowrap}
+details summary{cursor:pointer;font-weight:600;padding:4px 0}
+.mod{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.mod input{width:22px;height:22px;accent-color:var(--red)}
+nav{position:relative;z-index:5;touch-action:manipulation;flex-shrink:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:none;border:0;color:var(--gray);font-size:12px;padding:6px 0;cursor:pointer}
+nav button span{display:block;font-size:22px}
+nav button.on{color:var(--red);font-weight:700}
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 12px}
+#stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 4px;text-align:center}
+#stats b{display:block;font-size:20px}#stats small{color:var(--gray);font-size:11px}
+#box{position:relative;height:11.2em;overflow:hidden;border:2px solid var(--red);border-radius:18px;background:var(--card);padding:14px;font:20px/1.55 var(--mono);color:var(--gray);white-space:pre-wrap;overflow-wrap:break-word}
+#box span.ok{color:var(--green)}#box span.bl{color:#444}
+#box span.cur{background:rgba(217,44,44,.28);color:#fff;border-bottom:3px solid var(--red);border-radius:3px}
+#box span.hid{color:transparent;text-shadow:0 0 6px #555}
+#box span.bad{background:var(--red);color:#fff;animation:fl .3s}
+@keyframes fl{0%{transform:scale(1.25)}100%{transform:scale(1)}}
+.bar{display:flex;align-items:center;gap:8px;margin:0 0 8px}.bar small{width:44px;color:var(--gray)}.bar i{--p:0%;flex:1;height:12px;border-radius:7px;background:linear-gradient(90deg,var(--c,var(--red)) var(--p),var(--card2) var(--p))}#b-me{--c:var(--green)}
+#cd{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;place-items:center;font-size:130px;font-weight:800;color:var(--red);z-index:8}
+#miss{height:44px;margin-top:10px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-weight:700;opacity:0;transition:opacity .15s}
+#miss.on{opacity:1}
+#kin{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0}
+.big{font-size:54px;font-weight:800;text-align:center;margin:6px 0}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.res div{background:var(--card2);border-radius:14px;padding:12px;text-align:center}
+.res b{display:block;font-size:22px}.res small{color:var(--gray)}
+.rec{text-align:center;color:var(--green);font-weight:700;margin:4px 0}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#modal.on{display:flex}
+#sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:80dvh;overflow:auto}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line);padding:10px 16px;border-radius:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;font-size:14px;text-align:center;max-width:90%}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <button class="pill" id="bSnd" aria-label="Звук">🔊</button>
+  <button class="pill grow" id="bStats">Моя статистика</button>
+  <button class="pill grow" id="bRules">Правила</button>
+</header>
+<main>
+  <section class="scr on" id="s-home">
+    <h1>Гонка печати</h1>
+    <p class="sub">Печатай быстро и точно. Ошибся — исправляй сразу.</p>
+    <div class="card">
+      <b>Быстрый старт</b>
+      <p class="sub" style="margin:4px 0 12px">Две случайные фразы, обычная сложность.</p>
+      <button class="btn" id="quick">Играть</button>
+    </div>
+    <div class="card"><b>Твой рекорд</b><div class="big" id="homeBest">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p></div>
+  </section>
+
+  <section class="scr" id="s-games">
+    <h1>Игры</h1>
+    <button class="card game" data-g="train"><span class="ic">⌨️</span><span><b>Тренировка</b><small>Фразы, цитаты, на время, на слова</small></span></button>
+    <button class="card game" data-g="duel"><span class="ic">⚔️</span><span><b>С соперником</b><small>Бот трёх скоростей, онлайн скоро</small></span></button>
+    <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span><span class="tag">скоро</span></button>
+    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span><span class="tag">скоро</span></button>
+    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span><span class="tag">скоро</span></button>
+  </section>
+
+  <section class="scr" id="s-train">
+    <button class="pill" data-go="games">‹ Назад</button>
+    <h1>Тренировка</h1>
+    <div class="lbl">Режим</div><div class="row" id="gMode"></div>
+    <div id="gSubWrap"><div class="lbl" id="gSubLbl"></div><div class="row" id="gSub"></div></div>
+    <div class="lbl">Сложность</div><div class="row" id="gDiff"></div>
+    <p class="sub" id="diffInfo" style="margin-top:8px;font-size:14px"></p>
+    <div class="card" style="margin-top:12px"><details><summary>Модификаторы</summary>
+      <label class="mod">Слепой режим (набранное не подсвечивается)<input type="checkbox" id="m-blind"></label>
+      <label class="mod">Скрыть статистику во время игры<input type="checkbox" id="m-nostat"></label>
+      <label class="mod">Прятать буквы дальше 10 символов<input type="checkbox" id="m-far"></label>
+    </details></div>
+    <button class="btn" id="start">Начать</button>
+  </section>
+
+  <section class="scr" id="s-duel">
+    <button class="pill" data-go="games">‹ Назад</button>
+    <h1>С соперником</h1>
+    <div class="card"><b>Дуэль с ботом</b><p class="sub" style="margin:4px 0 0">Одинаковый текст, отсчёт 3-2-1. Кто допечатает первым, тот победил.</p>
+    <div class="lbl">Скорость бота</div><div class="row" id="gBot"></div>
+    <p class="sub" id="botInfo" style="margin:8px 0 14px;font-size:14px"></p>
+    <button class="btn" id="startDuel">Сразиться</button></div>
+    <button class="card game" data-g="net"><span class="ic">🌐</span><span><b>Случайный соперник</b><small>Поиск по сети, 15 секунд</small></span></button>
+    <div class="card"><b>Дуэль по коду</b><p class="sub" style="margin:4px 0 12px">Создай комнату и назови код другу или введи его код.</p><button class="btn ghost" id="mkCode">Создать комнату</button><div class="row" style="margin-top:10px"><input id="inCode" inputmode="numeric" maxlength="5" placeholder="Код из 5 цифр" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:18px;padding:12px"><button class="chip sel" id="joinCode">Войти</button></div></div>
+  </section>
+
+  <section class="scr" id="s-wait"><h1 id="wTitle">Ожидание</h1><div class="card" style="text-align:center"><div class="big" id="wCode" style="letter-spacing:6px"></div><p class="sub" id="wMsg" style="margin:0"></p></div><button class="btn" id="wBot" style="display:none;margin-bottom:8px">Играть с ботом</button><button class="btn ghost" id="wCancel">Отмена</button></section>
+
+  <section class="scr" id="s-shop"><h1>Магазин</h1><div class="card"><p class="sub" style="margin:0">Скоро здесь появятся темы и значки.</p></div></section>
+
+  <section class="scr" id="s-profile">
+    <h1>Профиль</h1>
+    <div class="card"><b id="pName">Гость</b><p class="sub" style="margin:4px 0 12px">Вход через Яндекс появится на последнем этапе. Пока доступна только тренировка.</p>
+    <button class="btn ghost" id="pLogin">Войти через Яндекс</button></div>
+    <div class="card" id="pStats"></div>
+  </section>
+
+  <section class="scr" id="s-play">
+    <div id="stats"><div><b id="st-a">0%</b><small id="st-al">Прогресс</small></div><div><b id="st-w">0</b><small>слов/мин</small></div><div><b id="st-c">100%</b><small>Точность</small></div><div><b id="st-e">0</b><small>Ошибки</small></div></div>
+    <div id="bars" style="display:none"><div class="bar"><small>Ты</small><i id="b-me"></i></div><div class="bar"><small id="b-botn">Бот</small><i id="b-bot"></i></div></div>
+    <div id="box"><input id="kin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text"></div>
+    <div id="miss">Миссклик! Выбери другую букву</div>
+    <p class="sub" id="author" style="margin:10px 2px;text-align:right"></p>
+    <button class="btn ghost" id="quit">Выйти</button>
+  </section>
+
+  <section class="scr" id="s-result">
+    <h1 style="text-align:center" id="rTitle">Готово</h1>
+    <div class="big" id="rWpm">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p>
+    <div class="rec" id="rRec"></div>
+    <div class="res"><div><b id="rAcc">0%</b><small>точность</small></div><div><b id="rErr">0</b><small>ошибок</small></div><div><b id="rTime">0</b><small>секунд</small></div><div><b id="rBest">0</b><small>рекорд режима</small></div></div>
+    <button class="btn" id="again">Ещё раз</button>
+    <button class="btn ghost" id="toMenu" style="margin-top:8px">В меню</button>
+  </section>
+</main>
+<nav id="nav">
+  <button data-tab="home" class="on"><span>🏠</span>Главная</button>
+  <button data-tab="games"><span>🎮</span>Игры</button>
+  <button data-tab="shop"><span>🛒</span>Магазин</button>
+  <button data-tab="profile"><span>👤</span>Профиль</button>
+</nav>
+</div>
+<div id="modal"><div id="sheet"></div></div>
+<div id="toast"></div>
+<div id="cd"></div>
+
+<script>
+"use strict";
+// ---------- Контент (этап 1: короткие наборы, на этапе 2 расширим до 100+/50/500+) ----------
+const PHRASES=["В субботу друзья дошли до песчаного пляжа.","Утром над рекой поднялся тёплый туман.","Мы купили свежий хлеб и пошли домой.","Старый кот спокойно дремал на подоконнике.","Дождь закончился, и во дворе запахло травой.","Вечером вся семья собралась за большим столом.","Поезд тронулся, и за окном побежали поля.","Она открыла окно и впустила в комнату ветер.","Мальчик нашёл в саду маленького ёжика.","На рынке пахло яблоками и свежим мёдом.","Зимой на озере катаются на коньках.","Автобус пришёл вовремя, и мы успели на урок.","Маяк светил всю ночь, не гася огня.","В лесу было тихо, только пели птицы.","Мама испекла пирог с вишней и корицей.","Весной горы покрываются зелёным ковром.","Он долго искал ключи и нашёл их в кармане.","Над городом медленно плыли розовые облака.","Школьники с шумом выбежали на перемену.","Велосипед стоял у калитки, мокрый от росы.","Мы смотрели на звёзды и загадывали желания.","Библиотека открывается в девять утра.","Хороший друг всегда выслушает и поддержит.","Маленький корабль вышел из порта на рассвете.","Чай остыл, пока мы разговаривали о пустяках.","Осенью листья падают и шуршат под ногами.","Бабушка рассказывала сказки перед сном.","На горизонте показался остров с белым маяком.","Повар быстро нарезал овощи и поставил суп.","Лето прошло, но тепло осталось в памяти."];
+const QUOTES=[["Белеет парус одинокий в тумане моря голубом.","М. Ю. Лермонтов"],["Я помню чудное мгновенье: передо мной явилась ты.","А. С. Пушкин"],["Служить бы рад, прислуживаться тошно.","А. С. Грибоедов"],["Какой же русский не любит быстрой езды!","Н. В. Гоголь"],["В человеке должно быть всё прекрасно: и лицо, и одежда, и душа, и мысли.","А. П. Чехов"],["Рукописи не горят.","М. А. Булгаков"],["Красота спасёт мир.","Ф. М. Достоевский"],["Все счастливые семьи похожи друг на друга, каждая несчастливая семья несчастлива по-своему.","Л. Н. Толстой"],["Чему бы жизнь нас ни учила, но сердце верит в чудеса.","А. А. Фет"],["Мы все глядим в Наполеоны.","А. С. Пушкин"]];
+const WORDS="дом лес река море гора поле небо звезда ветер дождь снег солнце луна город улица мост окно дверь стол стул книга песня друг семья школа урок мечта дорога поезд корабль остров берег волна птица рыба кошка собака лошадь яблоко хлеб молоко чай сад цветок трава камень огонь вода свет тень ночь утро вечер день неделя месяц год часы время слово буква текст звук голос музыка гитара скрипка картина город деревня площадь парк пляж песок ветка листок облако туман радуга гроза ручей озеро пещера тропа шаг бег прыжок игра победа рекорд скорость точность ритм клавиша экран телефон письмо ответ вопрос ключ замок карта маршрут путь привал костёр палатка рюкзак фонарь компас закат рассвет полдень зима весна лето осень".replace(/ё/g,"е").split(" ");
+
+// ---------- Утилиты ----------
+const $=s=>document.querySelector(s);
+const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const last={};
+function pick(arr,key){let i,n=0;do{i=Math.floor(Math.random()*arr.length)}while(i===last[key]&&arr.length>1&&n++<9);last[key]=i;return arr[i]}
+const norm=s=>s.toLowerCase().replace(/ё/g,"е");
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2200)}
+function modal(html){$("#sheet").innerHTML=html+'<button class="btn ghost" style="margin-top:14px" id="mx">Закрыть</button>';$("#modal").classList.add("on");$("#mx").onclick=()=>$("#modal").classList.remove("on")}
+$("#modal").onclick=e=>{if(e.target.id==="modal")$("#modal").classList.remove("on")};
+
+// ---------- Звук (Web Audio) ----------
+let AC=null,soundOn=LS("snd")!==false;
+function beep(f,d,type,v){if(!soundOn)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.08,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+const sClick=()=>beep(880,.05,"triangle",.05),sErr=()=>beep(150,.25,"sawtooth",.12),sWin=()=>{beep(660,.12);setTimeout(()=>beep(880,.12),120);setTimeout(()=>beep(1175,.2),240)};
+function drawSnd(){$("#bSnd").textContent=soundOn?"🔊":"🔇"}
+$("#bSnd").onclick=()=>{soundOn=!soundOn;SV("snd",soundOn);drawSnd();sClick()};drawSnd();
+
+// ---------- Навигация ----------
+function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("main").scrollTop=0;$("#nav").style.display=(id==="play")?"none":"flex"}
+function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>tab(b.dataset.go));
+document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
+$("#pLogin").onclick=()=>toast("Вход через Яндекс подключим на последнем этапе");
+
+// ---------- Настройки тренировки ----------
+const MODES=[["phrases","Фразы"],["quotes","Цитаты"],["time","На время"],["words","На слова"]];
+const DIFFS=[["normal","Обычная"],["expert","Эксперт"],["master","Мастер"]];
+const DINFO={normal:"Текст как есть: с заглавными и знаками препинания.",expert:"Без знаков препинания и заглавных, только буквы и пробелы.",master:"Как «Эксперт», но три ошибки — и раунд закончен."};
+const S={mode:"phrases",sub:10,diff:"normal",bot:"mid"};
+function chips(el,list,key,cb){el.innerHTML="";list.forEach(([v,t])=>{const b=document.createElement("button");b.className="chip"+(S[key]===v?" sel":"");b.textContent=t;b.onclick=()=>{S[key]=v;chips(el,list,key,cb);cb&&cb();sClick()};el.appendChild(b)})}
+function drawSetup(){
+  chips($("#gMode"),MODES,"mode",drawSetup);
+  const w=$("#gSubWrap");w.style.display=(S.mode==="words"||S.mode==="time")?"block":"none";
+  if(S.mode==="words"){$("#gSubLbl").textContent="Количество слов";chips($("#gSub"),[[10,"10"],[25,"25"],[50,"50"]],"sub")}
+  else if(S.mode==="time"){$("#gSubLbl").textContent="Длительность";$("#gSub").innerHTML='<button class="chip sel">60 сек</button>'}
+  chips($("#gDiff"),DIFFS,"diff",()=>$("#diffInfo").textContent=DINFO[S.diff]);
+  $("#diffInfo").textContent=DINFO[S.diff];
+}
+drawSetup();
+
+// ---------- Игра ----------
+let G=null,D=null;
+function prep(t){t=t.replace(/ё/g,"е").replace(/Ё/g,"Е");if(S.diff!=="normal")t=norm(t).replace(/[.,!?;:«»"—\-–]/g,"").replace(/\s+/g," ").trim();return t}
+function buildText(){
+  if(S.mode==="phrases")return {t:prep(pick(PHRASES,"p")+" "+pick(PHRASES,"p2")),a:""};
+  if(S.mode==="quotes"){const q=pick(QUOTES,"q");return {t:prep(q[0]),a:"— "+q[1]}}
+  if(S.mode==="time")return {t:prep([0,1,2,3].map(()=>pick(PHRASES,"p")).join(" ")),a:""};
+  const n=S.sub,a=[];for(let i=0;i<n;i++)a.push(pick(WORDS,"w"));return {t:a.join(" "),a:""};
+}
+function startGame(){
+  const b=D?{t:D.text,a:""}:buildText();
+  G={text:b.t,pos:0,total:0,ok:0,err:0,t0:0,spans:[],done:false,timer:null,limit:(S.mode==="time"&&!D)?60:0,locked:false,
+     blind:$("#m-blind").checked,far:$("#m-far").checked,nostat:$("#m-nostat").checked};
+  const box=$("#box");box.querySelectorAll("span").forEach(s=>s.remove());
+  addSpans(b.t);
+  $("#author").textContent=b.a;
+  $("#stats").style.display=G.nostat?"none":"grid";
+  $("#st-al").textContent=G.limit?"Осталось":"Прогресс";
+  box.scrollTop=0;
+  mark();upd();
+  show("play");
+  $("#kin").value="";$("#kin").focus();
+  $("#bars").style.display=D?"block":"none";if(D){D.bot=0;setBars();countdown()}
+}
+function addSpans(t){const box=$("#box");for(const c of t){const s=document.createElement("span");s.textContent=c;if(G.far&&G.spans.length>=10)s.className="hid";G.spans.push(s);box.appendChild(s)}}
+function mark(){
+  const s=G.spans[G.pos];if(s){s.className="cur"}
+  if(G.far){const f=G.spans[G.pos+10];if(f)f.classList.remove("hid")}
+  const box=$("#box");if(s&&s.offsetTop-box.scrollTop>box.clientHeight*.55)box.scrollTop=s.offsetTop-40;
+}
+function press(ch){
+  if(!G||G.done||G.locked)return;
+  if(!G.t0){G.t0=Date.now();G.timer=setInterval(upd,200)}
+  const want=G.text[G.pos];G.total++;
+  if(norm(ch)===norm(want)){
+    G.ok++;G.spans[G.pos].className=G.blind?"bl":"ok";G.pos++;$("#miss").classList.remove("on");sClick();
+    if(G.limit&&G.text.length-G.pos<40){const more=prep(pick(PHRASES,"p")+" "+pick(PHRASES,"p2"));G.text+=" "+more;addSpans(" "+more)}
+    if(G.pos>=G.text.length){finish()}else mark();
+  }else{
+    G.err++;sErr();const s=G.spans[G.pos];s.className="bad";
+    $("#miss").classList.add("on");clearTimeout(G.mt);G.mt=setTimeout(()=>$("#miss").classList.remove("on"),1100);
+    setTimeout(()=>{if(G&&!G.done&&G.spans[G.pos]===s)s.className="cur"},320);
+    if(S.diff==="master"&&!D&&G.err>=3){upd();finish(true);return}
+  }
+  upd();
+}
+function elapsed(){return G.t0?(Date.now()-G.t0)/1000:0}
+function wpm(sec){return sec>0?Math.round(G.ok/5/(sec/60)):0}
+function upd(){
+  if(!G)return;const sec=elapsed();
+  if(G.limit&&sec>=G.limit&&!G.done){finish();return}
+  $("#st-a").textContent=G.limit?Math.max(0,Math.ceil(G.limit-sec))+" с":Math.round(G.pos/G.text.length*100)+"%";
+  $("#st-w").textContent=wpm(sec);
+  $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
+  $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed())})}}
+}
+const kin=$("#kin");
+kin.addEventListener("input",()=>{const v=kin.value;kin.value="";for(const ch of v)press(ch)});
+$("#box").onclick=()=>kin.focus();
+$("#quit").onclick=()=>{const wd=!!D;if(D&&D.net)netEnd(false,0,true);endTimer();D=null;G=null;kin.blur();tab("games");if(!wd)show("train")};
+function endTimer(){if(G&&G.timer){clearInterval(G.timer);G.timer=null}if(D&&D.iv){clearInterval(D.iv);D.iv=null}}
+
+// ---------- Дуэль с ботом ----------
+const BOT={slow:25,mid:45,fast:70},BOTL=[["slow","Медленный"],["mid","Средний"],["fast","Быстрый"]];
+function drawDuel(){chips($("#gBot"),BOTL,"bot",drawDuel);$("#botInfo").textContent="Бот печатает около "+BOT[S.bot]+" слов в минуту."}
+function startDuel(){D={text:pick(PHRASES,"p")+" "+pick(PHRASES,"p2"),bot:0,wpm:BOT[S.bot],iv:null,botWon:false,lvl:S.bot};D.text=D.text.replace(/ё/g,"е");startGame()}
+$("#startDuel").onclick=startDuel;
+function setBars(){if(!G||!D)return;const n=G.text.length;$("#b-me").style.setProperty("--p",(G.pos/n*100)+"%");$("#b-bot").style.setProperty("--p",(D.bot/n*100)+"%")}
+function countdown(){
+  const g=G,el=$("#cd");g.locked=true;el.style.display="grid";el.textContent="…";$("#b-botn").textContent=D.net?"Он":"Бот";
+  const at=D.startAt||(Date.now()+3000);let shown=0;
+  const iv=setInterval(()=>{
+    if(G!==g||g.done){clearInterval(iv);el.style.display="none";return}
+    const rem=at-Date.now();
+    if(rem>0){const n=Math.ceil(rem/1000);if(n!==shown&&n<=3){shown=n;el.textContent=n;beep(500,.12)}return}
+    clearInterval(iv);el.style.display="none";beep(900,.25);
+    g.locked=false;g.t0=Date.now();g.timer=setInterval(upd,200);if(!D.net)D.iv=setInterval(botTick,100);
+  },100);
+}
+function botTick(){
+  if(!G||!D||G.done)return;const n=G.text.length;
+  D.bot=Math.min(n,D.bot+D.wpm*5/60*.1*(.7+.6*Math.random()));setBars();
+  if(D.bot>=n){D.botWon=true;finish()}
+}
+// ---------- Онлайн (Firebase Realtime Database) ----------
+// Впиши сюда данные из консоли Firebase (Project settings → Your apps → Web)
+const FB_CFG={apiKey:"AIzaSyCaXjkJBY8d3wa3Yur_Up8Z_zghD8CuEeo",authDomain:"word-batle.firebaseapp.com",databaseURL:"https://word-batle-default-rtdb.europe-west1.firebasedatabase.app",projectId:"word-batle",storageBucket:"word-batle.firebasestorage.app",messagingSenderId:"630133258114",appId:"1:630133258114:web:bfb6329d56b35cf347c19b"};
+const UID=LS("uid")||(()=>{const u=Math.random().toString(36).slice(2,10);SV("uid",u);return u})();
+const NAME=LS("nick")||(()=>{const n="Игрок"+(100+Math.floor(Math.random()*900));SV("nick",n);return n})();
+let DB=null,NET=null,OFF=0,waitT=null;
+const srvNow=()=>Date.now()+OFF;
+function fbReady(){
+  if(!FB_CFG.databaseURL){toast("Онлайн ещё не настроен: впиши данные Firebase");return Promise.reject()}
+  if(DB)return Promise.resolve(DB);
+  const BASES=["https://www.gstatic.com/firebasejs/10.12.2/","https://cdn.jsdelivr.net/npm/firebase@10.12.2/"],L=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.onload=a;e.onerror=()=>b(new Error("script"));document.head.appendChild(e)});
+  const load=i=>L(BASES[i]+"firebase-app-compat.js").then(()=>L(BASES[i]+"firebase-database-compat.js")).catch(e=>{if(i+1<BASES.length)return load(i+1);throw e});
+  return load(0).then(()=>{
+    try{firebase.initializeApp(FB_CFG);DB=firebase.database();DB.ref(".info/serverTimeOffset").on("value",x=>OFF=x.val()||0);return DB}
+    catch(e){toast("Ошибка Firebase: "+(e.message||e));throw 0}
+  },e=>{toast("Скрипт Firebase не загрузился. Нет интернета или он заблокирован в этом окне");throw 0});
+}
+const T=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),ms))]);
+const errText=e=>{const m=String(e&&(e.message||e.code)||e);return /permission/i.test(m)?"Нет доступа: опубликуй правила в Firebase (Rules → Publish)":m==="timeout"?"База не отвечает: проверь интернет и databaseURL":"Ошибка: "+m};
+function waitScr(t,c,m,bot){$("#wTitle").textContent=t;$("#wCode").textContent=c;$("#wMsg").textContent=m;$("#wBot").style.display=bot?"block":"none";show("wait")}
+function mkRoom(open){
+  const code=String(10000+Math.floor(Math.random()*90000)),r=DB.ref("rooms/"+code);
+  return r.once("value").then(x=>x.exists()?mkRoom(open):r.set({text:(pick(PHRASES,"p")+" "+pick(PHRASES,"p2")).replace(/ё/g,"е"),created:firebase.database.ServerValue.TIMESTAMP,open:open,host:{id:UID,name:NAME,pos:0}}).then(()=>code));
+}
+function attach(code,role){
+  const ref=DB.ref("rooms/"+code),my=ref.child(role);
+  NET={code,role,ref,my,opp:role==="host"?"guest":"host",started:false,lp:0};
+  my.onDisconnect().update({left:true});if(role==="host")ref.child("open").onDisconnect().set(false);
+  ref.on("value",onRoom);
+}
+function onRoom(snap){
+  if(!NET)return;const v=snap.val(),o=v&&v[NET.opp];
+  if(!NET.started){
+    if(!v)return;
+    if(NET.role==="host"&&o&&!v.startAt)NET.ref.update({startAt:srvNow()+4000,open:false});
+    if(v.startAt&&o){NET.started=true;clearTimeout(waitT);
+      D={text:v.text,bot:0,wpm:0,iv:null,botWon:false,lvl:"net",net:true,startAt:v.startAt-OFF};startGame()}
+  }else if(G&&D&&D.net&&!G.done){
+    if(!o||o.left){D.oppLeft=true;finish()}
+    else{D.bot=o.pos||0;D.wpm=o.wpm||D.wpm;if(o.done){D.botWon=true;finish()}}
+  }
+}
+function netEnd(win,w,quit){
+  const n=NET;if(!n)return;NET=null;n.ref.off();
+  n.my.update(quit?{left:true}:{pos:G?G.pos:0,wpm:w||0,done:!!win});
+  n.my.onDisconnect().cancel();if(n.role==="host"){n.ref.child("open").onDisconnect().cancel();setTimeout(()=>n.ref.remove(),6000)}
+}
+function netCancel(){
+  clearTimeout(waitT);const n=NET;
+  if(n&&!n.started){NET=null;n.ref.off();n.my.onDisconnect().cancel();if(n.role==="host")n.ref.remove().catch(()=>{});else n.my.remove().catch(()=>{})}
+  show("duel");
+}
+function joinRoom(code){
+  return DB.ref("rooms/"+code+"/guest").transaction(c=>c?undefined:{id:UID,name:NAME,pos:0}).then(r=>{if(r.committed){attach(code,"guest");return true}return false});
+}
+function findMatch(){
+  T(fbReady().then(async()=>{
+    waitScr("Случайный соперник","","Ищем соперника…");
+    const snap=await DB.ref("rooms").orderByChild("open").equalTo(true).limitToFirst(10).once("value"),all=snap.val()||{};
+    for(const c of Object.keys(all)){const r=all[c];
+      if(!r.host||r.host.id===UID||r.host.left||r.guest||!r.created||srvNow()-r.created>60000)continue;
+      if(await joinRoom(c)){waitScr("Случайный соперник","","Соперник найден. Ждём старт…");return}}
+    const code=await mkRoom(true);attach(code,"host");
+    waitT=setTimeout(()=>waitScr("Случайный соперник","","Соперник не найден. Сыграть с ботом?",true),15000);
+  }),12000).catch(e=>{if(e)toast(errText(e));show("duel")});
+}
+$("#mkCode").onclick=()=>{waitScr("Дуэль по коду","","Подключаемся…");T(fbReady().then(()=>mkRoom(false)),12000).then(code=>{attach(code,"host");waitScr("Дуэль по коду",code,"Назови этот код сопернику и жди")}).catch(e=>{show("duel");if(e)toast(errText(e))})};
+$("#joinCode").onclick=()=>{
+  const code=$("#inCode").value.trim();if(!/^\d{5}$/.test(code)){toast("Код — 5 цифр");return}
+  T(fbReady().then(()=>DB.ref("rooms/"+code).once("value")),12000).then(x=>{
+    const v=x.val();
+    if(!v)return toast("Комната не найдена");
+    if(srvNow()-v.created>1800000)return toast("Комната устарела");
+    if(v.guest||v.host&&v.host.left)return toast("Комната занята или закрыта");
+    return joinRoom(code).then(ok=>ok?waitScr("Дуэль по коду",code,"Вы в комнате. Ждём старт…"):toast("Комната занята"));
+  }).catch(e=>{if(e)toast(errText(e))});
+};
+$("#wCancel").onclick=netCancel;
+$("#wBot").onclick=()=>{netCancel();startDuel()};
+// ---------- Итог и рекорды ----------
+function finish(failed){
+  if(G.done)return;G.done=true;endTimer();kin.blur();
+  let sec=G.limit?Math.min(G.limit,elapsed()||G.limit):elapsed();if(sec<1)sec=1;
+  const w=wpm(sec),acc=G.total?Math.round(G.ok/G.total*100):100;
+  const key=D?"duel|"+D.lvl:S.mode+"|"+(S.mode==="words"?S.sub:"-")+"|"+S.diff;
+  const recs=LS("recs")||{};const prev=recs[key]||0;const isRec=w>prev&&!failed&&!(D&&D.botWon);
+  if(isRec){recs[key]=w;SV("recs",recs)}
+  const st=LS("stats")||{games:0,chars:0,accSum:0,best:0};
+  st.games++;st.chars+=G.ok;st.accSum+=acc;st.best=Math.max(st.best,failed?0:w);SV("stats",st);
+  $("#rTitle").textContent=D?(D.oppLeft?"Соперник вышел: победа":D.botWon?"Поражение":"Победа!"):failed?"Три ошибки — раунд окончен":"Раунд завершён";
+  $("#rWpm").textContent=w;$("#rAcc").textContent=acc+"%";$("#rErr").textContent=G.err;$("#rTime").textContent=Math.round(sec);
+  $("#rBest").textContent=Math.max(prev,isRec?w:0);
+  $("#rRec").textContent=isRec?"Новый рекорд!":(D?(D.net?"Соперник печатал ":"Бот печатал ")+Math.round(D.wpm)+" слов/мин":"");
+  if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
+  show("result");
+}
+$("#start").onclick=()=>{D=null;startGame()};
+$("#quick").onclick=()=>{S.mode="phrases";S.diff="normal";drawSetup();D=null;startGame()};
+$("#again").onclick=()=>{if(D&&D.net){D=null;drawDuel();tab("games");show("duel")}else D?startDuel():startGame()};
+$("#toMenu").onclick=()=>{D=null;tab("games")};
+
+// ---------- Главная, профиль, статистика, правила ----------
+function bestAll(){const r=LS("recs")||{};return Math.max(0,...Object.values(r))}
+function drawHome(){$("#homeBest").textContent=bestAll()}
+function statsHtml(){const s=LS("stats")||{games:0,chars:0,accSum:0,best:0};
+  return `<b>Моя статистика</b><div class="res"><div><b>${s.games}</b><small>раундов</small></div><div><b>${s.best}</b><small>лучший слов/мин</small></div><div><b>${s.games?Math.round(s.accSum/s.games):0}%</b><small>средняя точность</small></div><div><b>${s.chars}</b><small>верных символов</small></div></div>`}
+function drawProfile(){$("#pStats").innerHTML=statsHtml()}
+$("#bStats").onclick=()=>modal(statsHtml());
+$("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
+drawHome();drawProfile();
+</script>
+</body>
+</html>
