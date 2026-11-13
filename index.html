@@ -84,9 +84,9 @@ nav button.on{color:var(--red);font-weight:700}
     <h1>Игры</h1>
     <button class="card game" data-g="train"><span class="ic">⌨️</span><span><b>Тренировка</b><small>Фразы, цитаты, на время, на слова</small></span></button>
     <button class="card game" data-g="duel"><span class="ic">⚔️</span><span><b>С соперником</b><small>Бот трёх скоростей, онлайн скоро</small></span></button>
-    <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span><span class="tag">скоро</span></button>
-    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span><span class="tag">скоро</span></button>
-    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span><span class="tag">скоро</span></button>
+    <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span></button>
+    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span></button>
+    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span></button>
   </section>
 
   <section class="scr" id="s-train">
@@ -117,12 +117,24 @@ nav button.on{color:var(--red);font-weight:700}
 
   <section class="scr" id="s-wait"><h1 id="wTitle">Ожидание</h1><div class="card" style="text-align:center"><div class="big" id="wCode" style="letter-spacing:6px"></div><p class="sub" id="wMsg" style="margin:0"></p></div><button class="btn" id="wBot" style="display:none;margin-bottom:8px">Играть с ботом</button><button class="btn ghost" id="wCancel">Отмена</button></section>
 
+  <section class="scr" id="s-top"><button class="pill" data-go="games">‹ Назад</button><h1>Топ игроков</h1><div class="row" id="tpTabs"></div><div id="tpList" style="margin-top:12px"></div></section>
+
+  <section class="scr" id="s-friends"><button class="pill" data-go="games">‹ Назад</button><h1>Друзья</h1>
+    <div class="card"><b>Найти игрока</b><div class="row" style="margin-top:8px"><input id="fq" placeholder="Ник или ID" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="fgo">Найти</button></div><div id="fres" style="margin-top:8px"></div></div>
+    <div id="flist"></div></section>
+
+  <section class="scr" id="s-chat"><button class="pill" data-go="games">‹ Назад</button><h1>Общий чат</h1>
+    <div id="cmsgs" class="card" style="height:50vh;overflow-y:auto;padding:8px 12px;font-size:15px"></div>
+    <div class="row"><input id="cin" maxlength="120" placeholder="Сообщение" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="csend">Отправить</button></div>
+    <p class="sub" style="font-size:12px;margin-top:8px">Нажми на сообщение, чтобы пожаловаться или скрыть игрока. Не чаще 1 сообщения в 3 секунды.</p></section>
+
   <section class="scr" id="s-shop"><h1>Магазин</h1><div class="card"><p class="sub" style="margin:0">Скоро здесь появятся темы и значки.</p></div></section>
 
   <section class="scr" id="s-profile">
     <h1>Профиль</h1>
     <div class="card"><b id="pName">Гость</b><p class="sub" style="margin:4px 0 12px">Вход через Яндекс появится на последнем этапе. Пока доступна только тренировка.</p>
     <button class="btn ghost" id="pLogin">Войти через Яндекс</button></div>
+    <div class="card"><b>Ник и ID</b><p class="sub" id="pIdTxt" style="margin:4px 0 10px"></p><div class="row"><input id="nickIn" maxlength="16" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="nickSave">Сохранить</button></div></div>
     <div class="card" id="pStats"></div>
   </section>
 
@@ -186,7 +198,7 @@ function show(id){if(id!=="play"&&id!=="wait")kin.blur();document.querySelectorA
 function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>tab(b.dataset.go));
-document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
+document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else if(g==="top")openTop();else if(g==="friends")openFriends();else if(g==="chat")openChat();else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
 $("#pLogin").onclick=()=>toast("Вход через Яндекс подключим на последнем этапе");
 
 // ---------- Настройки тренировки ----------
@@ -296,18 +308,18 @@ function botTick(){
 // Впиши сюда данные из консоли Firebase (Project settings → Your apps → Web)
 const FB_CFG={apiKey:"AIzaSyCaXjkJBY8d3wa3Yur_Up8Z_zghD8CuEeo",authDomain:"word-batle.firebaseapp.com",databaseURL:"https://word-batle-default-rtdb.europe-west1.firebasedatabase.app",projectId:"word-batle",storageBucket:"word-batle.firebasestorage.app",messagingSenderId:"630133258114",appId:"1:630133258114:web:bfb6329d56b35cf347c19b"};
 const UID=LS("uid")||(()=>{const u=Math.random().toString(36).slice(2,10);SV("uid",u);return u})();
-const NAME=LS("nick")||(()=>{const n="Игрок"+(100+Math.floor(Math.random()*900));SV("nick",n);return n})();
-let DB=null,NET=null,OFF=0,waitT=null;
+let NAME=LS("nick")||(()=>{const n="Игрок"+(100+Math.floor(Math.random()*900));SV("nick",n);return n})();
+let DB=null,NET=null,OFF=0,waitT=null,QUIET=false;const toastQ=m=>{if(!QUIET)toast(m)};
 const srvNow=()=>Date.now()+OFF;
 function fbReady(){
-  if(!FB_CFG.databaseURL){toast("Онлайн ещё не настроен: впиши данные Firebase");return Promise.reject()}
+  if(!FB_CFG.databaseURL){toastQ("Онлайн ещё не настроен: впиши данные Firebase");return Promise.reject()}
   if(DB)return Promise.resolve(DB);
   const BASES=["https://www.gstatic.com/firebasejs/10.12.2/","https://cdn.jsdelivr.net/npm/firebase@10.12.2/"],L=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.onload=a;e.onerror=()=>b(new Error("script"));document.head.appendChild(e)});
   const load=i=>L(BASES[i]+"firebase-app-compat.js").then(()=>L(BASES[i]+"firebase-database-compat.js")).catch(e=>{if(i+1<BASES.length)return load(i+1);throw e});
   return load(0).then(()=>{
     try{firebase.initializeApp(FB_CFG);DB=firebase.database();DB.ref(".info/serverTimeOffset").on("value",x=>OFF=x.val()||0);return DB}
-    catch(e){toast("Ошибка Firebase: "+(e.message||e));throw 0}
-  },e=>{toast("Скрипт Firebase не загрузился. Нет интернета или он заблокирован в этом окне");throw 0});
+    catch(e){toastQ("Ошибка Firebase: "+(e.message||e));throw 0}
+  },e=>{toastQ("Скрипт Firebase не загрузился. Нет интернета или он заблокирован в этом окне");throw 0});
 }
 const T=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),ms))]);
 const errText=e=>{const m=String(e&&(e.message||e.code)||e);return /permission/i.test(m)?"Нет доступа: опубликуй правила в Firebase (Rules → Publish)":m==="timeout"?"База не отвечает: проверь интернет и databaseURL":"Ошибка: "+m};
@@ -371,6 +383,108 @@ $("#joinCode").onclick=()=>{
 };
 $("#wCancel").onclick=netCancel;
 $("#wBot").onclick=()=>{netCancel();startDuel()};
+// ---------- Топ, друзья, чат ----------
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let FR={},INIT=false,HB=()=>{},MS=[],CH=false,lastSend=0,lastTxt="";S.tab="day";
+const HID=()=>LS("hid")||[],dayKey=()=>new Date(srvNow()).toISOString().slice(0,10).replace(/-/g,"");
+const SVT=()=>firebase.database.ServerValue.TIMESTAMP,CL=()=>$("#modal").classList.remove("on");
+const guard=f=>()=>fbReady().then(()=>{initNet();return f()}).catch(e=>{if(e)toast(errText(e))});
+function initNet(){
+  if(INIT)return;INIT=true;const me=DB.ref("players/"+UID);
+  HB=()=>me.update({name:NAME,nameLower:NAME.toLowerCase(),seen:SVT()});HB();setInterval(HB,30000);
+  DB.ref("friends/"+UID).on("value",x=>{FR=x.val()||{};if($("#s-friends").classList.contains("on"))renderFriends()});
+  setInterval(()=>{if($("#s-friends").classList.contains("on"))renderFriends()},30000);
+  DB.ref("invites/"+UID).on("value",x=>{const v=x.val();if(!v)return;x.ref.remove();if(srvNow()-v.t>60000||(G&&!G.done))return;
+    modal("<b>"+esc(v.name)+" вызывает тебя на дуэль</b><button class=\"btn\" id=\"invOk\" style=\"margin-top:12px\">Принять</button>");
+    $("#invOk").onclick=()=>{CL();pre();joinRoom(v.code).then(ok=>ok?waitScr("Дуэль","","Вы в комнате. Ждём старт…"):toast("Комната уже занята"))}});
+}
+function submitScore(w){
+  if(!DB||w<1||w>400)return;const v=c=>(!c||w>c.wpm)?{name:NAME,wpm:w}:undefined;
+  DB.ref("scores/all/"+UID).transaction(v);DB.ref("scores/day/"+dayKey()+"/"+UID).transaction(v);
+}
+// Топ
+const openTop=guard(()=>{show("top");drawTop()});
+function drawTop(){
+  chips($("#tpTabs"),[["day","Сегодня"],["all","За всё время"]],"tab",drawTop);
+  const r=S.tab==="all"?DB.ref("scores/all"):DB.ref("scores/day/"+dayKey());
+  r.orderByChild("wpm").limitToLast(20).once("value").then(x=>{
+    const a=[];x.forEach(c=>{a.push([c.key,c.val()])});a.reverse();
+    $("#tpList").innerHTML=a.length?a.map(([k,v],i)=>'<button class="card game" data-u="'+k+'"><b style="width:28px">'+(i+1)+'</b><span><b>'+esc(v.name)+'</b></span><span class="tag">'+v.wpm+' сл/мин</span></button>').join(""):'<p class="sub">Пока никого. Сыграй тренировку первым!</p>';
+  }).catch(e=>toast(errText(e)));
+}
+$("#tpList").onclick=e=>{const b=e.target.closest("[data-u]");if(b)showPlayer(b.dataset.u)};
+function showPlayer(uid){
+  Promise.all([DB.ref("players/"+uid).once("value"),DB.ref("scores/all/"+uid).once("value")]).then(([p,sc])=>{
+    const pv=p.val()||{},sv=sc.val()||{},name=pv.name||sv.name||"Игрок",on=pv.seen&&srvNow()-pv.seen<70000,st=FR[uid]&&FR[uid].st;
+    let btn=uid===UID?"":st==="ok"?'<p class="sub">Вы друзья</p>':st==="out"?'<p class="sub">Заявка отправлена</p>':st==="in"?'<button class="btn" id="pf">Принять заявку</button>':'<button class="btn" id="pf">Добавить в друзья</button>';
+    modal('<b style="font-size:20px">'+esc(name)+'</b><p class="sub">Лучший результат: '+(sv.wpm||0)+' слов/мин · '+(on?"онлайн":"не в сети")+'</p>'+btn);
+    if($("#pf"))$("#pf").onclick=()=>{CL();act(st==="in"?"acc":"add",uid,name)};
+  }).catch(e=>toast(errText(e)));
+}
+// Друзья
+const openFriends=guard(()=>{show("friends");renderFriends()});
+function act(a,u,n){
+  const o={},m="friends/"+UID+"/"+u,t="friends/"+u+"/"+UID;
+  if(a==="add"){o[m]={name:n||"Игрок",st:"out"};o[t]={name:NAME,st:"in"}}
+  else if(a==="acc"){o[m+"/st"]="ok";o[t+"/st"]="ok"}else{o[m]=null;o[t]=null}
+  DB.ref().update(o).then(()=>toast(a==="add"?"Заявка отправлена":a==="acc"?"Теперь вы друзья":"Готово")).catch(e=>toast(errText(e)));
+}
+const row=(n,b)=>'<div class="card" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1;min-width:90px">'+esc(n)+'</b>'+b+'</div>';
+const cb=(a,k,t,sel,n)=>'<button class="chip'+(sel?" sel":"")+'" data-a="'+a+'" data-u="'+k+'" data-n="'+esc(n||"")+'">'+t+'</button>';
+function renderFriends(){
+  const ks=Object.keys(FR),by=t=>ks.filter(k=>FR[k].st===t);
+  const inc=by("in"),ok=by("ok"),out=by("out");
+  $("#flist").innerHTML=(inc.length?"<h2>Заявки</h2>"+inc.map(k=>row(FR[k].name,cb("acc",k,"Принять",1)+cb("dec",k,"Отклонить"))).join(""):"")
+    +"<h2>Друзья</h2>"+(ok.length?ok.map(k=>row(FR[k].name,'<span class="tag" id="on-'+k+'">…</span>'+cb("chal",k,"Вызвать",1)+cb("rm",k,"✕"))).join(""):'<p class="sub">Пока нет друзей. Найди игрока по нику или ID.</p>')
+    +(out.length?"<h2>Отправленные заявки</h2>"+out.map(k=>row(FR[k].name,cb("dec",k,"Отменить"))).join(""):"");
+  ok.forEach(k=>DB.ref("players/"+k+"/seen").once("value").then(x=>{const e=$("#on-"+k),on=x.val()&&srvNow()-x.val()<70000;if(e){e.textContent=on?"● онлайн":"не в сети";e.style.color=on?"var(--green)":""}}));
+}
+$("#s-friends").onclick=e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,u=b.dataset.u;
+  if(a==="chal"){pre();mkRoom(false).then(code=>{attach(code,"host");DB.ref("invites/"+u).set({from:UID,name:NAME,code,t:SVT()});waitScr("Вызов отправлен",code,"Ждём, когда друг примет вызов")}).catch(er=>toast(errText(er)))}
+  else act(a,u,b.dataset.n);
+};
+$("#fgo").onclick=()=>{
+  const q=$("#fq").value.trim();if(!q)return;
+  guard(async()=>{
+    let res=[];
+    if(!/[.#$\[\]\/]/.test(q)){const x=await DB.ref("players/"+q).once("value");if(x.val())res.push([q,x.val()])}
+    const sn=await DB.ref("players").orderByChild("nameLower").equalTo(q.toLowerCase()).limitToFirst(10).once("value");
+    sn.forEach(c=>{if(c.key!==q)res.push([c.key,c.val()])});res=res.filter(r=>r[0]!==UID);
+    $("#fres").innerHTML=res.length?res.map(([k,v])=>row(v.name,FR[k]?'<span class="tag">уже есть</span>':cb("add",k,"Добавить",1,v.name))).join(""):'<p class="sub">Никого не нашли</p>';
+  })();
+};
+// Чат
+const BAD=/^(ху[йеёия]|пизд|еб[аоуыиеёл]|бляд?|сук[аи]|муда[кч]|гандон|пидо?р|залуп|шлюх)/;
+const LAT={a:"а",e:"е",o:"о",c:"с",p:"р",x:"х",y:"у"};
+function okMsg(t){
+  if(/(.)\1{5,}/.test(t)||/https?:|t\.me|www\.|\.(ru|com|net|org)\b/i.test(t)||t===lastTxt)return false;
+  return !t.toLowerCase().replace(/[a-z]/g,c=>LAT[c]||c).split(/[^а-яё]+/).some(w=>BAD.test(w));
+}
+const openChat=guard(()=>{
+  show("chat");
+  if(CH){drawChat();return}
+  CH=true;DB.ref("chat/msgs").limitToLast(50).on("child_added",x=>{MS.push([x.key,x.val()]);if(MS.length>50)MS.shift();drawChat()});
+});
+function drawChat(){
+  const h=HID(),b=$("#cmsgs");
+  b.innerHTML=MS.filter(([k,m])=>!h.includes(m.u)).map(([k,m])=>'<div data-k="'+k+'" style="padding:7px 2px;border-bottom:1px solid var(--line)"><b style="color:'+(m.u===UID?"var(--green)":"var(--red)")+'">'+esc(m.n)+'</b> '+esc(m.t)+'</div>').join("");
+  b.scrollTop=b.scrollHeight;
+}
+$("#cmsgs").onclick=e=>{
+  const d=e.target.closest("[data-k]");if(!d)return;const f=MS.find(x=>x[0]===d.dataset.k);if(!f||f[1].u===UID)return;const m=f[1];
+  modal("<b>"+esc(m.n)+"</b><p class=\"sub\">"+esc(m.t)+"</p><button class=\"btn ghost\" id=\"cRep\">Пожаловаться</button><button class=\"btn ghost\" id=\"cHide\" style=\"margin-top:8px\">Скрыть игрока</button>");
+  $("#cRep").onclick=()=>{CL();DB.ref("chat/reports").push({k:f[0],u:m.u,t:m.t,by:UID,ts:SVT()}).then(()=>toast("Жалоба отправлена"))};
+  $("#cHide").onclick=()=>{SV("hid",HID().concat(m.u));CL();drawChat();toast("Игрок скрыт")};
+};
+function sendMsg(){
+  const t=$("#cin").value.trim().replace(/\s+/g," ");if(!t)return;
+  if(Date.now()-lastSend<3000){toast("Не чаще 1 сообщения в 3 секунды");return}
+  if(t.length>120||!okMsg(t)){toast("Сообщение не прошло фильтр");return}
+  lastSend=Date.now();lastTxt=t;$("#cin").value="";
+  DB.ref("chat/msgs").push({u:UID,n:NAME,t:t,ts:SVT()}).catch(e=>toast(errText(e)));
+}
+$("#csend").onclick=sendMsg;$("#cin").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
 // ---------- Итог и рекорды ----------
 function finish(failed){
   if(G.done)return;G.done=true;endTimer();kin.blur();
@@ -385,7 +499,7 @@ function finish(failed){
   $("#rWpm").textContent=w;$("#rAcc").textContent=acc+"%";$("#rErr").textContent=G.err;$("#rTime").textContent=Math.round(sec);
   $("#rBest").textContent=Math.max(prev,isRec?w:0);
   $("#rRec").textContent=isRec?"Новый рекорд!":(D?(D.net?"Соперник печатал ":"Бот печатал ")+Math.round(D.wpm)+" слов/мин":"");
-  if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
+  if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w);if(!D&&!failed)submitScore(w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
   show("result");
 }
 $("#start").onclick=()=>{D=null;startGame()};
@@ -398,10 +512,12 @@ function bestAll(){const r=LS("recs")||{};return Math.max(0,...Object.values(r))
 function drawHome(){$("#homeBest").textContent=bestAll()}
 function statsHtml(){const s=LS("stats")||{games:0,chars:0,accSum:0,best:0};
   return `<b>Моя статистика</b><div class="res"><div><b>${s.games}</b><small>раундов</small></div><div><b>${s.best}</b><small>лучший слов/мин</small></div><div><b>${s.games?Math.round(s.accSum/s.games):0}%</b><small>средняя точность</small></div><div><b>${s.chars}</b><small>верных символов</small></div></div>`}
-function drawProfile(){$("#pStats").innerHTML=statsHtml()}
+function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pIdTxt").textContent="Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
 $("#bStats").onclick=()=>modal(statsHtml());
 $("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
 drawHome();drawProfile();
+$("#nickSave").onclick=()=>{const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
+QUIET=true;fbReady().then(initNet).catch(()=>{}).then(()=>{QUIET=false});
 </script>
 </body>
 </html>
