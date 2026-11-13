@@ -47,7 +47,7 @@ nav button.on{color:var(--red);font-weight:700}
 #cd{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;place-items:center;font-size:130px;font-weight:800;color:var(--red);z-index:8}
 #miss{height:44px;margin-top:10px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-weight:700;opacity:0;transition:opacity .15s}
 #miss.on{opacity:1}
-#kin{position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px}
+#kin{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px}
 .big{font-size:54px;font-weight:800;text-align:center;margin:6px 0}
 .res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .res div{background:var(--card2);border-radius:14px;padding:12px;text-align:center}
@@ -225,7 +225,7 @@ function startGame(){
   box.scrollTop=0;
   mark();upd();
   show("play");
-  $("#kin").value="";$("#kin").focus();
+  $("#kin").value="";foc();
   $("#bars").style.display=D?"block":"none";if(D){D.bot=0;setBars();countdown()}
 }
 function addSpans(t){const box=$("#box");for(const c of t){const s=document.createElement("span");s.textContent=c;if(G.far&&G.spans.length>=10)s.className="hid";G.spans.push(s);box.appendChild(s)}}
@@ -260,9 +260,9 @@ function upd(){
   $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
   $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed())})}}
 }
-const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const pre=()=>{if(IOS)kin.focus()};
+const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const foc=()=>{try{kin.focus({preventScroll:true})}catch(e){kin.focus()}};const pre=()=>{if(IOS)foc()};if(window.visualViewport)visualViewport.addEventListener("scroll",()=>{if(IOS&&document.activeElement===kin)window.scrollTo(0,0)});
 kin.addEventListener("input",()=>{const v=kin.value;kin.value="";for(const ch of v)press(ch)});
-$("#box").onclick=()=>kin.focus();
+$("#box").onclick=()=>foc();
 $("#quit").onclick=()=>{const wd=!!D;if(D&&D.net)netEnd(false,0,true);endTimer();D=null;G=null;kin.blur();tab("games");if(!wd)show("train")};
 function endTimer(){if(G&&G.timer){clearInterval(G.timer);G.timer=null}if(D&&D.iv){clearInterval(D.iv);D.iv=null}}
 
