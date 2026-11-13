@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#0d0d0f;--card:#18181c;--card2:#222228;--line:#2c2c34;--red:#d92c2c;--green:#3ecf6e;--gray:#6e6e78;--text:#f2f2f4;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+html,body{position:fixed;width:100%;height:100%;margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 header{display:flex;gap:8px;padding:10px 12px;align-items:center}
 .pill{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:9px 14px;font-size:14px;cursor:pointer}
@@ -45,6 +45,7 @@ nav button.on{color:var(--red);font-weight:700}
 @keyframes fl{0%{transform:scale(1.25)}100%{transform:scale(1)}}
 .bar{display:flex;align-items:center;gap:8px;margin:0 0 8px}.bar small{width:44px;color:var(--gray)}.bar i{--p:0%;flex:1;height:12px;border-radius:7px;background:linear-gradient(90deg,var(--c,var(--red)) var(--p),var(--card2) var(--p))}#b-me{--c:var(--green)}
 #cd{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;place-items:center;font-size:130px;font-weight:800;color:var(--red);z-index:8}
+#app.kb #box{height:8em;font-size:18px}#app.kb #author{display:none}#app.kb #stats{margin:0 0 8px}
 #miss{height:44px;margin-top:10px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-weight:700;opacity:0;transition:opacity .15s}
 #miss.on{opacity:1}
 #kin{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px}
@@ -260,7 +261,10 @@ function upd(){
   $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
   $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed())})}}
 }
-const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const foc=()=>{try{kin.focus({preventScroll:true})}catch(e){kin.focus()}};const pre=()=>{if(IOS)foc()};if(window.visualViewport)visualViewport.addEventListener("scroll",()=>{if(IOS&&document.activeElement===kin)window.scrollTo(0,0)});
+const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const foc=()=>{try{kin.focus({preventScroll:true})}catch(e){kin.focus()}};const pre=()=>{if(IOS)foc()};const appEl=$("#app");
+function fit(){const v=window.visualViewport;if(!v||!IOS)return;appEl.style.bottom="auto";appEl.style.top=v.offsetTop+"px";appEl.style.height=v.height+"px";appEl.classList.toggle("kb",v.height<innerHeight*.8);if(document.activeElement===kin)window.scrollTo(0,0)}
+if(window.visualViewport){visualViewport.addEventListener("resize",fit);visualViewport.addEventListener("scroll",fit)}
+window.addEventListener("scroll",()=>{if(IOS)window.scrollTo(0,0)});
 kin.addEventListener("input",()=>{const v=kin.value;kin.value="";for(const ch of v)press(ch)});
 $("#box").onclick=()=>foc();
 $("#quit").onclick=()=>{const wd=!!D;if(D&&D.net)netEnd(false,0,true);endTimer();D=null;G=null;kin.blur();tab("games");if(!wd)show("train")};
