@@ -47,7 +47,7 @@ nav button.on{color:var(--red);font-weight:700}
 #cd{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;place-items:center;font-size:130px;font-weight:800;color:var(--red);z-index:8}
 #miss{height:44px;margin-top:10px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-weight:700;opacity:0;transition:opacity .15s}
 #miss.on{opacity:1}
-#kin{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0}
+#kin{position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px}
 .big{font-size:54px;font-weight:800;text-align:center;margin:6px 0}
 .res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .res div{background:var(--card2);border-radius:14px;padding:12px;text-align:center}
@@ -128,7 +128,7 @@ nav button.on{color:var(--red);font-weight:700}
   <section class="scr" id="s-play">
     <div id="stats"><div><b id="st-a">0%</b><small id="st-al">Прогресс</small></div><div><b id="st-w">0</b><small>слов/мин</small></div><div><b id="st-c">100%</b><small>Точность</small></div><div><b id="st-e">0</b><small>Ошибки</small></div></div>
     <div id="bars" style="display:none"><div class="bar"><small>Ты</small><i id="b-me"></i></div><div class="bar"><small id="b-botn">Бот</small><i id="b-bot"></i></div></div>
-    <div id="box"><input id="kin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text"></div>
+    <div id="box"></div>
     <div id="miss">Миссклик! Выбери другую букву</div>
     <p class="sub" id="author" style="margin:10px 2px;text-align:right"></p>
     <button class="btn ghost" id="quit">Выйти</button>
@@ -153,6 +153,7 @@ nav button.on{color:var(--red);font-weight:700}
 <div id="modal"><div id="sheet"></div></div>
 <div id="toast"></div>
 <div id="cd"></div>
+<input id="kin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text">
 
 <script>
 "use strict";
@@ -180,7 +181,7 @@ function drawSnd(){$("#bSnd").textContent=soundOn?"🔊":"🔇"}
 $("#bSnd").onclick=()=>{soundOn=!soundOn;SV("snd",soundOn);drawSnd();sClick()};drawSnd();
 
 // ---------- Навигация ----------
-function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("main").scrollTop=0;$("#nav").style.display=(id==="play")?"none":"flex"}
+function show(id){if(id!=="play"&&id!=="wait")kin.blur();document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("main").scrollTop=0;$("#nav").style.display=(id==="play")?"none":"flex"}
 function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>tab(b.dataset.go));
@@ -259,7 +260,7 @@ function upd(){
   $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
   $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed())})}}
 }
-const kin=$("#kin");
+const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const pre=()=>{if(IOS)kin.focus()};
 kin.addEventListener("input",()=>{const v=kin.value;kin.value="";for(const ch of v)press(ch)});
 $("#box").onclick=()=>kin.focus();
 $("#quit").onclick=()=>{const wd=!!D;if(D&&D.net)netEnd(false,0,true);endTimer();D=null;G=null;kin.blur();tab("games");if(!wd)show("train")};
@@ -342,7 +343,7 @@ function netCancel(){
 function joinRoom(code){
   return DB.ref("rooms/"+code+"/guest").transaction(c=>c?undefined:{id:UID,name:NAME,pos:0}).then(r=>{if(r.committed){attach(code,"guest");return true}return false});
 }
-function findMatch(){
+function findMatch(){pre();
   T(fbReady().then(async()=>{
     waitScr("Случайный соперник","","Ищем соперника…");
     const snap=await DB.ref("rooms").orderByChild("open").equalTo(true).limitToFirst(10).once("value"),all=snap.val()||{};
@@ -353,9 +354,9 @@ function findMatch(){
     waitT=setTimeout(()=>waitScr("Случайный соперник","","Соперник не найден. Сыграть с ботом?",true),15000);
   }),12000).catch(e=>{if(e)toast(errText(e));show("duel")});
 }
-$("#mkCode").onclick=()=>{waitScr("Дуэль по коду","","Подключаемся…");T(fbReady().then(()=>mkRoom(false)),12000).then(code=>{attach(code,"host");waitScr("Дуэль по коду",code,"Назови этот код сопернику и жди")}).catch(e=>{show("duel");if(e)toast(errText(e))})};
+$("#mkCode").onclick=()=>{pre();waitScr("Дуэль по коду","","Подключаемся…");T(fbReady().then(()=>mkRoom(false)),12000).then(code=>{attach(code,"host");waitScr("Дуэль по коду",code,"Назови этот код сопернику и жди")}).catch(e=>{show("duel");if(e)toast(errText(e))})};
 $("#joinCode").onclick=()=>{
-  const code=$("#inCode").value.trim();if(!/^\d{5}$/.test(code)){toast("Код — 5 цифр");return}
+  pre();const code=$("#inCode").value.trim();if(!/^\d{5}$/.test(code)){toast("Код — 5 цифр");return}
   T(fbReady().then(()=>DB.ref("rooms/"+code).once("value")),12000).then(x=>{
     const v=x.val();
     if(!v)return toast("Комната не найдена");
