@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#0d0d0f">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Гонка печати</title>
 <style>
@@ -31,8 +32,10 @@ details summary{cursor:pointer;font-weight:600;padding:4px 0}
 .mod{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .mod input{width:22px;height:22px;accent-color:var(--red)}
 nav{position:relative;z-index:5;touch-action:manipulation;flex-shrink:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
-nav button{flex:1;background:none;border:0;color:var(--gray);font-size:12px;padding:6px 0;cursor:pointer}
+nav button{position:relative;flex:1;background:none;border:0;color:var(--gray);font-size:12px;padding:6px 0;cursor:pointer}
 nav button span{display:block;font-size:22px}
+.bd{background:var(--red);color:#fff;border-radius:999px;min-width:20px;height:20px;padding:0 6px;font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;font-style:normal}.bd.on{display:inline-flex}.nb{position:absolute;top:0;left:calc(50% + 6px)}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--red) center/cover no-repeat;color:#fff;font-weight:700;vertical-align:middle;flex-shrink:0;margin-right:8px;overflow:hidden}
 nav button.on{color:var(--red);font-weight:700}
 #stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 12px}
 #stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 4px;text-align:center}
@@ -59,6 +62,37 @@ nav button.on{color:var(--red);font-weight:700}
 #sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:80dvh;overflow:auto}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line);padding:10px 16px;border-radius:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;font-size:14px;text-align:center;max-width:90%}
 #toast.on{opacity:1}
+/* ---- оформление ---- */
+body{background:radial-gradient(120% 55% at 50% -8%,#2b1111 0%,var(--bg) 62%) no-repeat,var(--bg)}
+::-webkit-scrollbar{width:0}
+.card{box-shadow:0 8px 24px rgba(0,0,0,.35);border-color:#2a2a31}
+.hero{background:linear-gradient(135deg,#3b1515 0%,#1a1a1f 70%);border-color:#4a2020}
+.btn{background:linear-gradient(180deg,#e53838,#c22222);box-shadow:0 6px 18px rgba(217,44,44,.35);transition:transform .12s,box-shadow .12s}
+.btn.ghost{background:var(--card2);box-shadow:none;border:1px solid var(--line)}
+.pill{background:linear-gradient(180deg,#1d1d22,#16161a)}
+.chip{transition:background .15s,transform .1s}.chip:active{transform:scale(.96)}.chip.sel{box-shadow:0 4px 14px rgba(217,44,44,.3)}
+.game:active{transform:scale(.985)}.tag{background:var(--card2)}
+.scr.on{animation:scrIn .28s ease both}
+@keyframes scrIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{letter-spacing:-.3px}
+#stats div{background:linear-gradient(180deg,#1c1c21,#17171b)}#stats div:nth-child(2) b{color:var(--red)}#stats div:nth-child(3) b{color:var(--green)}
+#box{box-shadow:inset 0 0 0 1px rgba(217,44,44,.25),0 10px 30px rgba(217,44,44,.12);letter-spacing:.3px}
+#box span.cur{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{border-bottom-color:transparent}}
+.bar i{height:14px;border-radius:8px}
+nav{background:rgba(24,24,28,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+nav button span{transition:transform .15s}nav button.on span{transform:translateY(-2px) scale(1.12)}
+nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;height:3px;border-radius:3px;background:var(--red)}
+#rWpm{background:linear-gradient(180deg,#fff,#ff7a7a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:pop .5s ease both}
+.rec{animation:pop .5s .2s ease both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+#sheet{border-top:1px solid var(--line);box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+#toast{box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.av{box-shadow:0 0 0 2px #2a2a31}
+.cmp{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.ch,.cr{display:grid;grid-template-columns:1fr 1.1fr 1fr;align-items:center;text-align:center}
+.ch{margin-bottom:10px}.ch div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px;overflow:hidden;min-width:0}.ch .av{margin:0}.ch b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr{padding:9px 0;border-top:1px solid var(--line)}.cr small{color:var(--gray)}.cr span{font-size:20px;font-weight:700}.cr span.w{color:var(--green)}
 </style>
 </head>
 <body>
@@ -72,7 +106,7 @@ nav button.on{color:var(--red);font-weight:700}
   <section class="scr on" id="s-home">
     <h1>Гонка печати</h1>
     <p class="sub">Печатай быстро и точно. Ошибся — исправляй сразу.</p>
-    <div class="card">
+    <div class="card hero">
       <b>Быстрый старт</b>
       <p class="sub" style="margin:4px 0 12px">Две случайные фразы, обычная сложность.</p>
       <button class="btn" id="quick">Играть</button>
@@ -85,8 +119,8 @@ nav button.on{color:var(--red);font-weight:700}
     <button class="card game" data-g="train"><span class="ic">⌨️</span><span><b>Тренировка</b><small>Фразы, цитаты, на время, на слова</small></span></button>
     <button class="card game" data-g="duel"><span class="ic">⚔️</span><span><b>С соперником</b><small>Бот трёх скоростей, онлайн скоро</small></span></button>
     <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span></button>
-    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span></button>
-    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span></button>
+    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span><span class="bd" id="bd-friends" style="margin-left:auto"></span></button>
+    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span><span class="bd" id="bd-chat" style="margin-left:auto"></span></button>
   </section>
 
   <section class="scr" id="s-train">
@@ -128,12 +162,14 @@ nav button.on{color:var(--red);font-weight:700}
     <div class="row"><input id="cin" maxlength="120" placeholder="Сообщение" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="csend">Отправить</button></div>
     <p class="sub" style="font-size:12px;margin-top:8px">Нажми на сообщение, чтобы пожаловаться или скрыть игрока. Не чаще 1 сообщения в 3 секунды.</p></section>
 
+  <section class="scr" id="s-auth"><button class="pill" id="aBack">‹ Назад</button><div id="aBox" style="margin-top:12px"></div></section>
+
   <section class="scr" id="s-shop"><h1>Магазин</h1><div class="card"><p class="sub" style="margin:0">Скоро здесь появятся темы и значки.</p></div></section>
 
   <section class="scr" id="s-profile">
     <h1>Профиль</h1>
-    <div class="card"><b id="pName">Гость</b><p class="sub" style="margin:4px 0 12px">Вход через Яндекс появится на последнем этапе. Пока доступна только тренировка.</p>
-    <button class="btn ghost" id="pLogin">Войти через Яндекс</button></div>
+    <div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span id="pAv"></span><div><b id="pName">Гость</b><br><button class="chip" id="pAvBtn" style="margin-top:6px;display:none">Сменить аватар</button></div></div><input type="file" id="pFile" accept="image/*" style="display:none"><p class="sub" style="margin:4px 0 12px">Войди или зарегистрируйся, чтобы играть онлайн. Без входа доступна только тренировка.</p>
+    <button class="btn ghost" id="pLogin">Войти / Регистрация</button><button class="btn ghost" id="pOut" style="display:none;margin-top:8px">Выйти из аккаунта</button></div>
     <div class="card"><b>Ник и ID</b><p class="sub" id="pIdTxt" style="margin:4px 0 10px"></p><div class="row"><input id="nickIn" maxlength="16" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="nickSave">Сохранить</button></div></div>
     <div class="card" id="pStats"></div>
   </section>
@@ -151,16 +187,17 @@ nav button.on{color:var(--red);font-weight:700}
     <h1 style="text-align:center" id="rTitle">Готово</h1>
     <div class="big" id="rWpm">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p>
     <div class="rec" id="rRec"></div>
-    <div class="res"><div><b id="rAcc">0%</b><small>точность</small></div><div><b id="rErr">0</b><small>ошибок</small></div><div><b id="rTime">0</b><small>секунд</small></div><div><b id="rBest">0</b><small>рекорд режима</small></div></div>
+    <div id="cmp"></div>
+    <div class="res" id="rRes"><div><b id="rAcc">0%</b><small>точность</small></div><div><b id="rErr">0</b><small>ошибок</small></div><div><b id="rTime">0</b><small>секунд</small></div><div><b id="rBest">0</b><small>рекорд режима</small></div></div>
     <button class="btn" id="again">Ещё раз</button>
     <button class="btn ghost" id="toMenu" style="margin-top:8px">В меню</button>
   </section>
 </main>
 <nav id="nav">
   <button data-tab="home" class="on"><span>🏠</span>Главная</button>
-  <button data-tab="games"><span>🎮</span>Игры</button>
+  <button data-tab="games"><span>🎮</span>Игры<i class="bd nb" id="bd-games"></i></button>
   <button data-tab="shop"><span>🛒</span>Магазин</button>
-  <button data-tab="profile"><span>👤</span>Профиль</button>
+  <button data-tab="profile"><span>👤</span>Профиль<i class="bd nb" id="bd-profile"></i></button>
 </nav>
 </div>
 <div id="modal"><div id="sheet"></div></div>
@@ -271,7 +308,7 @@ function upd(){
   $("#st-a").textContent=G.limit?Math.max(0,Math.ceil(G.limit-sec))+" с":Math.round(G.pos/G.text.length*100)+"%";
   $("#st-w").textContent=wpm(sec);
   $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
-  $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed())})}}
+  $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed()),acc:G.total?Math.round(G.ok/G.total*100):100,err:G.err})}}
 }
 const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const foc=()=>{try{kin.focus({preventScroll:true})}catch(e){kin.focus()}};const pre=()=>{if(IOS)foc()};const appEl=$("#app");
 function fit(){const v=window.visualViewport;if(!v||!IOS)return;appEl.style.bottom="auto";appEl.style.top=v.offsetTop+"px";appEl.style.height=v.height+"px";appEl.classList.toggle("kb",v.height<innerHeight*.8);if(document.activeElement===kin)window.scrollTo(0,0)}
@@ -315,9 +352,9 @@ function fbReady(){
   if(!FB_CFG.databaseURL){toastQ("Онлайн ещё не настроен: впиши данные Firebase");return Promise.reject()}
   if(DB)return Promise.resolve(DB);
   const BASES=["https://www.gstatic.com/firebasejs/10.12.2/","https://cdn.jsdelivr.net/npm/firebase@10.12.2/"],L=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.onload=a;e.onerror=()=>b(new Error("script"));document.head.appendChild(e)});
-  const load=i=>L(BASES[i]+"firebase-app-compat.js").then(()=>L(BASES[i]+"firebase-database-compat.js")).catch(e=>{if(i+1<BASES.length)return load(i+1);throw e});
+  const load=i=>L(BASES[i]+"firebase-app-compat.js").then(()=>L(BASES[i]+"firebase-database-compat.js")).then(()=>L(BASES[i]+"firebase-auth-compat.js")).catch(e=>{if(i+1<BASES.length)return load(i+1);throw e});
   return load(0).then(()=>{
-    try{firebase.initializeApp(FB_CFG);DB=firebase.database();DB.ref(".info/serverTimeOffset").on("value",x=>OFF=x.val()||0);return DB}
+    try{firebase.initializeApp(FB_CFG);DB=firebase.database();FA=firebase.auth();DB.ref(".info/serverTimeOffset").on("value",x=>OFF=x.val()||0);return DB}
     catch(e){toastQ("Ошибка Firebase: "+(e.message||e));throw 0}
   },e=>{toastQ("Скрипт Firebase не загрузился. Нет интернета или он заблокирован в этом окне");throw 0});
 }
@@ -340,16 +377,16 @@ function onRoom(snap){
     if(!v)return;
     if(NET.role==="host"&&o&&!v.startAt)NET.ref.update({startAt:srvNow()+4000,open:false});
     if(v.startAt&&o){NET.started=true;clearTimeout(waitT);
-      D={text:v.text,bot:0,wpm:0,iv:null,botWon:false,lvl:"net",net:true,startAt:v.startAt-OFF};startGame()}
-  }else if(G&&D&&D.net&&!G.done){
+      D={text:v.text,bot:0,wpm:0,iv:null,botWon:false,lvl:"net",net:true,startAt:v.startAt-OFF,oppName:o.name,oppId:o.id};startGame()}
+  }else if(G&&D&&D.net&&G.done){if(o){D.opp=o;D.wpm=o.wpm||D.wpm;if($("#s-result").classList.contains("on"))renderCmp()}}else if(G&&D&&D.net&&!G.done){
     if(!o||o.left){D.oppLeft=true;finish()}
-    else{D.bot=o.pos||0;D.wpm=o.wpm||D.wpm;if(o.done){D.botWon=true;finish()}}
+    else{D.opp=o;D.bot=o.pos||0;D.wpm=o.wpm||D.wpm;if(o.done){D.botWon=true;finish()}}
   }
 }
-function netEnd(win,w,quit){
-  const n=NET;if(!n)return;NET=null;n.ref.off();
-  n.my.update(quit?{left:true}:{pos:G?G.pos:0,wpm:w||0,done:!!win});
-  n.my.onDisconnect().cancel();if(n.role==="host"){n.ref.child("open").onDisconnect().cancel();setTimeout(()=>n.ref.remove(),6000)}
+function netEnd(win,w,quit,ex){
+  const n=NET;if(!n)return;if(quit){NET=null;n.ref.off()}else setTimeout(()=>{if(NET===n)NET=null;n.ref.off()},8000);
+  n.my.update(quit?{left:true}:Object.assign({pos:G?G.pos:0,wpm:w||0,done:!!win},ex||{}));
+  n.my.onDisconnect().cancel();if(n.role==="host"){n.ref.child("open").onDisconnect().cancel();setTimeout(()=>n.ref.remove(),12000)}
 }
 function netCancel(){
   clearTimeout(waitT);const n=NET;
@@ -385,18 +422,18 @@ $("#wCancel").onclick=netCancel;
 $("#wBot").onclick=()=>{netCancel();startDuel()};
 // ---------- Топ, друзья, чат ----------
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let FR={},INIT=false,HB=()=>{},MS=[],CH=false,lastSend=0,lastTxt="";S.tab="day";
+let FR={},FRI=false,INV=null,INIT=false,HB=()=>{},MS=[],CH=false,lastSend=0,lastTxt="";S.tab="day";
 const HID=()=>LS("hid")||[],dayKey=()=>new Date(srvNow()).toISOString().slice(0,10).replace(/-/g,"");
 const SVT=()=>firebase.database.ServerValue.TIMESTAMP,CL=()=>$("#modal").classList.remove("on");
 const guard=f=>()=>fbReady().then(()=>{initNet();return f()}).catch(e=>{if(e)toast(errText(e))});
 function initNet(){
-  if(INIT)return;INIT=true;const me=DB.ref("players/"+UID);
+  if(INIT)return;INIT=true;startChat();setInterval(refreshBadges,15000);const me=DB.ref("players/"+UID);
   HB=()=>me.update({name:NAME,nameLower:NAME.toLowerCase(),seen:SVT()});HB();setInterval(HB,30000);
-  DB.ref("friends/"+UID).on("value",x=>{FR=x.val()||{};if($("#s-friends").classList.contains("on"))renderFriends()});
+  DB.ref("friends/"+UID).on("value",x=>{const old=FR,nw=x.val()||{};FR=nw;if(FRI)Object.keys(nw).forEach(k=>{const o=old[k],n=nw[k];if(n.st==="in"&&!(o&&o.st==="in"))ping("Заявка в друзья от "+n.name);else if(n.st==="ok"&&o&&o.st==="out")ping(n.name+" принял(а) заявку")});FRI=true;if($("#s-friends").classList.contains("on"))renderFriends();refreshBadges()});
   setInterval(()=>{if($("#s-friends").classList.contains("on"))renderFriends()},30000);
-  DB.ref("invites/"+UID).on("value",x=>{const v=x.val();if(!v)return;x.ref.remove();if(srvNow()-v.t>60000||(G&&!G.done))return;
+  DB.ref("invites/"+UID).on("value",x=>{const v=x.val();if(!v)return;x.ref.remove();if(srvNow()-v.t>60000)return;INV=v;refreshBadges();ping("⚔️ "+v.name+" вызывает на дуэль");if(G&&!G.done)return;
     modal("<b>"+esc(v.name)+" вызывает тебя на дуэль</b><button class=\"btn\" id=\"invOk\" style=\"margin-top:12px\">Принять</button>");
-    $("#invOk").onclick=()=>{CL();pre();joinRoom(v.code).then(ok=>ok?waitScr("Дуэль","","Вы в комнате. Ждём старт…"):toast("Комната уже занята"))}});
+    $("#invOk").onclick=()=>{CL();INV=null;refreshBadges();pre();joinRoom(v.code).then(ok=>ok?waitScr("Дуэль","","Вы в комнате. Ждём старт…"):toast("Комната уже занята"))}});
 }
 function submitScore(w){
   if(!DB||w<1||w>400)return;const v=c=>(!c||w>c.wpm)?{name:NAME,wpm:w}:undefined;
@@ -409,7 +446,7 @@ function drawTop(){
   const r=S.tab==="all"?DB.ref("scores/all"):DB.ref("scores/day/"+dayKey());
   r.orderByChild("wpm").limitToLast(20).once("value").then(x=>{
     const a=[];x.forEach(c=>{a.push([c.key,c.val()])});a.reverse();
-    $("#tpList").innerHTML=a.length?a.map(([k,v],i)=>'<button class="card game" data-u="'+k+'"><b style="width:28px">'+(i+1)+'</b><span><b>'+esc(v.name)+'</b></span><span class="tag">'+v.wpm+' сл/мин</span></button>').join(""):'<p class="sub">Пока никого. Сыграй тренировку первым!</p>';
+    $("#tpList").innerHTML=a.length?a.map(([k,v],i)=>'<button class="card game" data-u="'+k+'"><b style="width:28px">'+(i+1)+'</b>'+avEl(k,v.name,36)+'<span><b>'+esc(v.name)+'</b></span><span class="tag">'+v.wpm+' сл/мин</span></button>').join(""):'<p class="sub">Пока никого. Сыграй тренировку первым!</p>';fillAv($("#tpList"));
   }).catch(e=>toast(errText(e)));
 }
 $("#tpList").onclick=e=>{const b=e.target.closest("[data-u]");if(b)showPlayer(b.dataset.u)};
@@ -417,7 +454,7 @@ function showPlayer(uid){
   Promise.all([DB.ref("players/"+uid).once("value"),DB.ref("scores/all/"+uid).once("value")]).then(([p,sc])=>{
     const pv=p.val()||{},sv=sc.val()||{},name=pv.name||sv.name||"Игрок",on=pv.seen&&srvNow()-pv.seen<70000,st=FR[uid]&&FR[uid].st;
     let btn=uid===UID?"":st==="ok"?'<p class="sub">Вы друзья</p>':st==="out"?'<p class="sub">Заявка отправлена</p>':st==="in"?'<button class="btn" id="pf">Принять заявку</button>':'<button class="btn" id="pf">Добавить в друзья</button>';
-    modal('<b style="font-size:20px">'+esc(name)+'</b><p class="sub">Лучший результат: '+(sv.wpm||0)+' слов/мин · '+(on?"онлайн":"не в сети")+'</p>'+btn);
+    modal(avEl(uid,name,64)+'<b style="font-size:20px">'+esc(name)+'</b><p class="sub">Лучший результат: '+(sv.wpm||0)+' слов/мин · '+(on?"онлайн":"не в сети")+'</p>'+btn);fillAv($("#sheet"));
     if($("#pf"))$("#pf").onclick=()=>{CL();act(st==="in"?"acc":"add",uid,name)};
   }).catch(e=>toast(errText(e)));
 }
@@ -429,15 +466,15 @@ function act(a,u,n){
   else if(a==="acc"){o[m+"/st"]="ok";o[t+"/st"]="ok"}else{o[m]=null;o[t]=null}
   DB.ref().update(o).then(()=>toast(a==="add"?"Заявка отправлена":a==="acc"?"Теперь вы друзья":"Готово")).catch(e=>toast(errText(e)));
 }
-const row=(n,b)=>'<div class="card" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1;min-width:90px">'+esc(n)+'</b>'+b+'</div>';
+const row=(n,b,k)=>'<div class="card" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+(k?avEl(k,n,36):"")+'<b style="flex:1;min-width:90px">'+esc(n)+'</b>'+b+'</div>';
 const cb=(a,k,t,sel,n)=>'<button class="chip'+(sel?" sel":"")+'" data-a="'+a+'" data-u="'+k+'" data-n="'+esc(n||"")+'">'+t+'</button>';
 function renderFriends(){
   const ks=Object.keys(FR),by=t=>ks.filter(k=>FR[k].st===t);
   const inc=by("in"),ok=by("ok"),out=by("out");
-  $("#flist").innerHTML=(inc.length?"<h2>Заявки</h2>"+inc.map(k=>row(FR[k].name,cb("acc",k,"Принять",1)+cb("dec",k,"Отклонить"))).join(""):"")
-    +"<h2>Друзья</h2>"+(ok.length?ok.map(k=>row(FR[k].name,'<span class="tag" id="on-'+k+'">…</span>'+cb("chal",k,"Вызвать",1)+cb("rm",k,"✕"))).join(""):'<p class="sub">Пока нет друзей. Найди игрока по нику или ID.</p>')
-    +(out.length?"<h2>Отправленные заявки</h2>"+out.map(k=>row(FR[k].name,cb("dec",k,"Отменить"))).join(""):"");
-  ok.forEach(k=>DB.ref("players/"+k+"/seen").once("value").then(x=>{const e=$("#on-"+k),on=x.val()&&srvNow()-x.val()<70000;if(e){e.textContent=on?"● онлайн":"не в сети";e.style.color=on?"var(--green)":""}}));
+  $("#flist").innerHTML=(INV&&srvNow()-INV.t<60000?'<div class="card"><b>⚔️ '+esc(INV.name)+' вызывает тебя на дуэль</b><button class="btn" id="invGo" style="margin-top:10px">Принять вызов</button></div>':"")+(inc.length?"<h2>Заявки</h2>"+inc.map(k=>row(FR[k].name,cb("acc",k,"Принять",1)+cb("dec",k,"Отклонить"),k)).join(""):"")
+    +"<h2>Друзья</h2>"+(ok.length?ok.map(k=>row(FR[k].name,'<span class="tag" id="on-'+k+'">…</span>'+cb("chal",k,"Вызвать",1)+cb("rm",k,"✕"),k)).join(""):'<p class="sub">Пока нет друзей. Найди игрока по нику или ID.</p>')
+    +(out.length?"<h2>Отправленные заявки</h2>"+out.map(k=>row(FR[k].name,cb("dec",k,"Отменить"),k)).join(""):"");
+  fillAv($("#flist"));if($("#invGo"))$("#invGo").onclick=()=>{const v=INV;INV=null;refreshBadges();pre();joinRoom(v.code).then(g=>g?waitScr("Дуэль","","Вы в комнате. Ждём старт…"):toast("Комната уже занята"))};ok.forEach(k=>DB.ref("players/"+k+"/seen").once("value").then(x=>{const e=$("#on-"+k),on=x.val()&&srvNow()-x.val()<70000;if(e){e.textContent=on?"● онлайн":"не в сети";e.style.color=on?"var(--green)":""}}));
 }
 $("#s-friends").onclick=e=>{
   const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,u=b.dataset.u;
@@ -451,7 +488,7 @@ $("#fgo").onclick=()=>{
     if(!/[.#$\[\]\/]/.test(q)){const x=await DB.ref("players/"+q).once("value");if(x.val())res.push([q,x.val()])}
     const sn=await DB.ref("players").orderByChild("nameLower").equalTo(q.toLowerCase()).limitToFirst(10).once("value");
     sn.forEach(c=>{if(c.key!==q)res.push([c.key,c.val()])});res=res.filter(r=>r[0]!==UID);
-    $("#fres").innerHTML=res.length?res.map(([k,v])=>row(v.name,FR[k]?'<span class="tag">уже есть</span>':cb("add",k,"Добавить",1,v.name))).join(""):'<p class="sub">Никого не нашли</p>';
+    $("#fres").innerHTML=res.length?res.map(([k,v])=>row(v.name,FR[k]?'<span class="tag">уже есть</span>':cb("add",k,"Добавить",1,v.name),k)).join(""):'<p class="sub">Никого не нашли</p>';fillAv($("#fres"));
   })();
 };
 // Чат
@@ -461,15 +498,11 @@ function okMsg(t){
   if(/(.)\1{5,}/.test(t)||/https?:|t\.me|www\.|\.(ru|com|net|org)\b/i.test(t)||t===lastTxt)return false;
   return !t.toLowerCase().replace(/[a-z]/g,c=>LAT[c]||c).split(/[^а-яё]+/).some(w=>BAD.test(w));
 }
-const openChat=guard(()=>{
-  show("chat");
-  if(CH){drawChat();return}
-  CH=true;DB.ref("chat/msgs").limitToLast(50).on("child_added",x=>{MS.push([x.key,x.val()]);if(MS.length>50)MS.shift();drawChat()});
-});
+const openChat=guard(()=>{show("chat");drawChat();seenChat()});
 function drawChat(){
   const h=HID(),b=$("#cmsgs");
-  b.innerHTML=MS.filter(([k,m])=>!h.includes(m.u)).map(([k,m])=>'<div data-k="'+k+'" style="padding:7px 2px;border-bottom:1px solid var(--line)"><b style="color:'+(m.u===UID?"var(--green)":"var(--red)")+'">'+esc(m.n)+'</b> '+esc(m.t)+'</div>').join("");
-  b.scrollTop=b.scrollHeight;
+  b.innerHTML=MS.filter(([k,m])=>!h.includes(m.u)).map(([k,m])=>'<div data-k="'+k+'" style="padding:7px 2px;border-bottom:1px solid var(--line)">'+avEl(m.u,m.n,26)+'<b style="color:'+(m.u===UID?"var(--green)":"var(--red)")+'">'+esc(m.n)+'</b> '+esc(m.t)+'</div>').join("");
+  b.scrollTop=b.scrollHeight;fillAv(b);
 }
 $("#cmsgs").onclick=e=>{
   const d=e.target.closest("[data-k]");if(!d)return;const f=MS.find(x=>x[0]===d.dataset.k);if(!f||f[1].u===UID)return;const m=f[1];
@@ -486,22 +519,27 @@ function sendMsg(){
 }
 $("#csend").onclick=sendMsg;$("#cin").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
 // ---------- Яндекс SDK ----------
-let YSDK=null,PL=null,AUTH=false;
+let YSDK=null,PL=null,AUTH=false,YAUTH=false,EMAIL=null,FA=null,REG=false,PEND=null;
 const gp=on=>{try{YSDK&&YSDK.features.GameplayAPI&&YSDK.features.GameplayAPI[on?"start":"stop"]()}catch(e){}};
 const cyrb=t=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<t.length;i++){const c=t.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return 4294967296*(2097151&b)+(a>>>0)};
 const loadSdk=()=>new Promise(ok=>{const e=document.createElement("script");e.src="/sdk.js";e.onload=()=>ok(true);e.onerror=()=>ok(false);document.head.appendChild(e)});
 function setPlayer(){
-  if(!PL)return;AUTH=!!PL.getMode&&PL.getMode()!=="lite";
-  if(AUTH){const id=PL.getUniqueID();if(id)UID="y"+cyrb(id).toString(36);const n=String(PL.getName&&PL.getName()||"").trim();if(n)NAME=n.slice(0,16)}
+  if(!PL)return;YAUTH=AUTH=!!PL.getMode&&PL.getMode()!=="lite";
+  if(YAUTH){const id=PL.getUniqueID();if(id)UID="y"+cyrb(id).toString(36);const n=String(PL.getName&&PL.getName()||"").trim();if(n)NAME=n.slice(0,16)}
 }
-function cloudSave(){if(PL&&AUTH&&PL.setData)PL.setData({recs:LS("recs")||{},stats:LS("stats")||{}}).catch(()=>{})}
+function cloudSave(){
+  const d={recs:LS("recs")||{},stats:LS("stats")||{}};
+  if(YAUTH&&PL&&PL.setData)PL.setData(d).catch(()=>{});
+  else if(FA&&FA.currentUser&&DB)DB.ref("users/"+UID+"/data").set(d).catch(()=>{});
+}
+function merge(d){
+  d=d||{};const r=LS("recs")||{},cr=d.recs||{};Object.keys(cr).forEach(k=>{if(!(r[k]>=cr[k]))r[k]=cr[k]});SV("recs",r);
+  const ls=LS("stats")||{games:0},cs=d.stats||{games:0};if((cs.games||0)>(ls.games||0))SV("stats",cs);
+  drawHome();drawProfile();
+}
 function cloudLoad(){
-  if(!PL||!AUTH)return;
-  return PL.getData(["recs","stats"]).then(d=>{
-    const r=LS("recs")||{},cr=d.recs||{};Object.keys(cr).forEach(k=>{if(!(r[k]>=cr[k]))r[k]=cr[k]});SV("recs",r);
-    const ls=LS("stats")||{games:0},cs=d.stats||{games:0};if((cs.games||0)>(ls.games||0))SV("stats",cs);
-    drawHome();drawProfile();
-  }).catch(()=>{});
+  if(YAUTH&&PL)return PL.getData(["recs","stats"]).then(merge).catch(()=>{});
+  if(FA&&FA.currentUser&&DB)return DB.ref("users/"+UID+"/data").once("value").then(x=>merge(x.val())).catch(()=>{});
 }
 function ysInit(){
   const run=loadSdk().then(ok=>{
@@ -512,12 +550,67 @@ function ysInit(){
   return Promise.race([run,new Promise(r=>setTimeout(r,4000))]);
 }
 function login(){
-  if(!YSDK){toast("Вход работает внутри Яндекс Игр");return}
+  if(!YSDK){needAuth();return}
   YSDK.auth.openAuthDialog().then(()=>YSDK.getPlayer({scopes:false})).then(p=>{PL=p;setPlayer();toast("Вы вошли");setTimeout(()=>location.reload(),600)}).catch(()=>toast("Вход отменён"));
 }
 function needAuth(){
-  if(YSDK&&!AUTH){modal('<b>Нужен вход через Яндекс</b><p class="sub">Без входа доступна только тренировка.</p><button class="btn" id="lg">Войти</button>');$("#lg").onclick=()=>{CL();login()};return true}
-  return false;
+  if(AUTH)return false;
+  if(YSDK){modal('<b>Нужен вход через Яндекс</b><p class="sub">Без входа доступна только тренировка.</p><button class="btn" id="lg">Войти</button>');$("#lg").onclick=()=>{CL();login()};return true}
+  if(!FB_CFG.databaseURL)return false;
+  fbReady().then(()=>PEND?drawVerify():drawAuth("in")).catch(()=>{});return true;
+}
+const aerr=x=>{const c=(x&&x.code)||"";return /email-already/.test(c)?"Эта почта уже зарегистрирована":/invalid-email/.test(c)?"Некорректная почта":/weak-password/.test(c)?"Пароль минимум 6 символов":/invalid-credential|wrong-password|user-not-found/.test(c)?"Неверная почта или пароль":/requires-recent/.test(c)?"Для удаления войди заново: почта и пароль":/network/.test(c)?"Нет связи, проверь интернет":/too-many/.test(c)?"Слишком много попыток, подожди немного":/operation-not-allowed/.test(c)?"Вход по почте не включён в Firebase":/unauthorized-domain/.test(c)?"Этот сайт не добавлен в Authorized domains Firebase":"Ошибка: "+(x&&x.message||x)};
+const fld=(id,t,ph,ac)=>'<input id="'+id+'" type="'+t+'" placeholder="'+ph+'" autocomplete="'+ac+'" style="width:100%;margin-top:8px;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px">';
+function drawAuth(m){
+  show("auth");const up=m==="up";
+  $("#aBox").innerHTML='<div class="card"><b style="font-size:20px">'+(up?"Регистрация":"Вход")+'</b><p class="sub" style="margin:4px 0 6px">Один аккаунт для всех устройств и платформ.</p>'
+    +fld("aEm","email","Почта","email")+(up?fld("aNk","text","Ник (3–16 символов)","nickname"):"")+fld("aPw","password","Пароль (от 6 символов)",up?"new-password":"current-password")
+    +'<p class="sub" id="aErr" style="color:var(--red);margin:8px 0;min-height:1.3em"></p><button class="btn" id="aGo">'+(up?"Создать аккаунт":"Войти")+'</button><button class="chip" id="aSw" style="margin-top:8px;width:100%">'+(up?"У меня уже есть аккаунт":"Создать аккаунт")+'</button>'+(up?"":'<button class="chip" id="aRs" style="margin-top:8px;width:100%">Забыли пароль?</button>')+'</div>';
+  const err=t=>{$("#aErr").style.color="var(--red)";$("#aErr").textContent=t};
+  $("#aSw").onclick=()=>drawAuth(up?"in":"up");
+  if(!up)$("#aRs").onclick=()=>{const e=$("#aEm").value.trim();if(!e){err("Введи почту");return}FA.sendPasswordResetEmail(e).then(()=>{$("#aErr").style.color="var(--green)";$("#aErr").textContent="Письмо для сброса пароля отправлено"}).catch(x=>err(aerr(x)))};
+  $("#aGo").onclick=()=>{
+    const em=$("#aEm").value.trim(),pw=$("#aPw").value;if(!em||!pw){err("Заполни все поля");return}
+    if(!up){FA.signInWithEmailAndPassword(em,pw).then(c=>{if(c.user.emailVerified){toast("Вы вошли");tab("games")}else drawVerify()}).catch(x=>err(aerr(x)));return}
+    const nk=$("#aNk").value.trim();if(!/^[A-Za-zА-Яа-яЁё0-9_\-]{3,16}$/.test(nk)){err("Ник: 3–16 символов, буквы, цифры, _ и -");return}
+    const key="nicks/"+nk.toLowerCase();$("#aGo").disabled=true;
+    DB.ref(key).once("value").then(x=>{
+      if(x.exists()){err("Этот ник уже занят");$("#aGo").disabled=false;return}
+      REG=true;
+      return FA.createUserWithEmailAndPassword(em,pw).then(c=>{const u=c.user;
+        return DB.ref(key).transaction(cur=>cur?undefined:u.uid).then(r=>{
+          const nick=r.committed?nk:"Игрок"+u.uid.slice(0,4);if(!r.committed)toast("Ник успели занять, выдан временный");
+          return DB.ref("users/"+u.uid).update({nick}).then(()=>{REG=false;u.sendEmailVerification().catch(()=>{});onUser(u);drawVerify()})})});
+    }).catch(x=>{REG=false;$("#aGo").disabled=false;err(aerr(x))});
+  };
+}
+function drawVerify(){
+  show("auth");const u=FA&&FA.currentUser;if(!u){drawAuth("in");return}
+  $("#aBox").innerHTML='<div class="card"><b style="font-size:20px">Подтверди почту</b><p class="sub" style="margin:6px 0">Мы отправили письмо на <b>'+esc(u.email)+'</b>. Открой ссылку в письме (загляни в «Спам»), потом вернись сюда.</p><p class="sub" id="aErr" style="min-height:1.3em;margin:6px 0"></p><button class="btn" id="vOk">Я подтвердил(а)</button><button class="chip" id="vRe" style="margin-top:8px;width:100%">Отправить письмо ещё раз</button><button class="chip" id="vDel" style="margin-top:8px;width:100%">Неверная почта: удалить аккаунт и начать заново</button></div>';
+  const msg=(t,ok)=>{$("#aErr").style.color=ok?"var(--green)":"var(--red)";$("#aErr").textContent=t};
+  $("#vOk").onclick=()=>u.reload().then(()=>u.getIdToken(true)).then(()=>{
+    if(!u.emailVerified){msg("Почта пока не подтверждена");return}
+    return Promise.resolve(onUser(u)).then(()=>{toast("Почта подтверждена");tab("games")});
+  }).catch(x=>msg(aerr(x)));
+  $("#vRe").onclick=()=>u.sendEmailVerification().then(()=>msg("Письмо отправлено",1)).catch(x=>msg(aerr(x)));
+  $("#vDel").onclick=()=>{
+    if(!confirm("Удалить аккаунт? Ник освободится, рекорды пропадут."))return;
+    DB.ref("users/"+u.uid+"/nick").once("value").then(x=>{
+      const nk=x.val()?String(x.val()).toLowerCase():null;
+      const free=nk?DB.ref("nicks/"+nk).once("value").then(n=>n.val()===u.uid?DB.ref("nicks/"+nk).remove():0):0;
+      return Promise.resolve(free).then(()=>DB.ref("users/"+u.uid).remove());
+    }).then(()=>u.delete()).then(()=>{PEND=null;EMAIL=null;toast("Аккаунт удалён");drawProfile();drawAuth("up")}).catch(x=>msg(aerr(x)));
+  };
+}
+function onUser(u){
+  if(REG||!u)return;
+  EMAIL=u.email;if(!u.emailVerified){PEND=u;AUTH=false;drawProfile();return}PEND=null;UID=u.uid;AUTH=true;
+  return DB.ref("users/"+u.uid+"/nick").once("value").then(x=>{if(x.val())NAME=x.val();initNet();HB();drawProfile();return cloudLoad()}).catch(()=>{});
+}
+function authBoot(){
+  if(YAUTH){initNet();return}
+  if(!FA)return;
+  return new Promise(res=>{let first=true;FA.onAuthStateChanged(u=>{const p=onUser(u);if(first){first=false;Promise.resolve(p).then(res)}})});
 }
 function showAd(){
   if(!YSDK||!YSDK.adv)return;
@@ -525,6 +618,73 @@ function showAd(){
 }
 document.addEventListener("visibilitychange",()=>{adMute=document.hidden});
 document.addEventListener("contextmenu",e=>{if(!/INPUT|TEXTAREA/.test(e.target.tagName))e.preventDefault()});
+// ---------- Аватарки и уведомления ----------
+const AVC={},AVP={};
+const avEl=(uid,name,sz)=>'<span class="av" data-av="'+uid+'" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*.45)+'px">'+esc(String(name||"?").trim().charAt(0).toUpperCase()||"?")+'</span>';
+function setAv(u,v){if(!v)return;document.querySelectorAll(".av").forEach(e=>{if(e.dataset.av===u){e.style.backgroundImage='url("'+v+'")';e.textContent=""}})}
+function fillAv(root){
+  if(!DB)return;
+  (root||document).querySelectorAll(".av").forEach(e=>{const u=e.dataset.av;if(!u)return;
+    if(u in AVC){setAv(u,AVC[u]);return}
+    if(!AVP[u])AVP[u]=DB.ref("avatars/"+u).once("value").then(x=>{AVC[u]=x.val()||"";setAv(u,AVC[u])}).catch(()=>{});
+  });
+}
+$("#pAvBtn").onclick=()=>$("#pFile").click();
+$("#pFile").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f||!AUTH||!DB)return;
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d"),m=Math.min(img.width,img.height);
+    x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,64,64);
+    let q=.75,d=c.toDataURL("image/jpeg",q);while(d.length>6000&&q>.3){q-=.1;d=c.toDataURL("image/jpeg",q)}
+    URL.revokeObjectURL(img.src);
+    DB.ref("avatars/"+UID).set(d).then(()=>{AVC[UID]=d;setAv(UID,d);toast("Аватар обновлён")}).catch(er=>toast(errText(er)));
+  };
+  img.onerror=()=>toast("Не удалось открыть картинку");img.src=URL.createObjectURL(f);
+};
+function ping(t){toast(t);try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}beep(700,.1,"triangle",.06)}
+function setB(id,n){const e=$("#bd-"+id);if(!e)return;e.textContent=n;e.classList.toggle("on",!!n)}
+function refreshBadges(){
+  if(INV&&srvNow()-INV.t>=60000)INV=null;
+  const fr=Object.keys(FR).filter(k=>FR[k].st==="in").length+(INV?1:0);
+  const seen=LS("chatSeen")||0,h=HID();
+  const un=$("#s-chat").classList.contains("on")?0:MS.filter(([k,m])=>m.u!==UID&&(m.ts||0)>seen&&!h.includes(m.u)).length;
+  setB("friends",fr);setB("chat",un);setB("games",fr+un);setB("profile",PEND?"!":0);
+}
+function startChat(){
+  if(CH)return;CH=true;if(LS("chatSeen")==null)SV("chatSeen",srvNow());
+  DB.ref("chat/msgs").limitToLast(50).on("child_added",x=>{
+    MS.push([x.key,x.val()]);if(MS.length>50)MS.shift();
+    if($("#s-chat").classList.contains("on")){drawChat();seenChat()}else refreshBadges();
+  });
+}
+function seenChat(){const t=MS.reduce((a,m)=>Math.max(a,m[1].ts||0),LS("chatSeen")||0);SV("chatSeen",t);refreshBadges()}
+// ---------- Сравнение с соперником ----------
+let R=null;const BOTACC={slow:98,mid:96,fast:93};
+function resX(w,acc,sec){
+  R={w,acc,err:G.err,sec:Math.round(sec),pos:G.pos,len:G.text.length};
+  $("#rRes").style.display=D?"none":"";$("#rWpm").style.display=D?"none":"";$("#rWpm").nextElementSibling.style.display=D?"none":"";
+  if(D)renderCmp();else $("#cmp").innerHTML="";
+}
+function oppData(){
+  const n=R.len;
+  if(!D.net){
+    const a=BOTACC[D.lvl]||96,pos=Math.round(D.bot);
+    return {name:"Бот",av:'<span class="av" style="width:48px;height:48px;font-size:24px">🤖</span>',wpm:D.botWon?Math.max(1,Math.round(n/5/(R.sec/60))):D.wpm,acc:a,err:Math.round(pos*(100-a)/100),pos,t:D.botWon?R.sec:null};
+  }
+  const o=D.opp||{};
+  return {name:D.oppName||"Соперник",av:avEl(D.oppId,D.oppName,48),wpm:Math.round(o.wpm||0),acc:o.acc==null?null:o.acc,err:o.err==null?null:o.err,pos:o.pos||0,t:o.done&&o.t?o.t:null};
+}
+function renderCmp(){
+  if(!D||!R)return;const o=oppData(),n=R.len;
+  const num=v=>typeof v==="number",cell=(a,b,hi)=>[a,b,num(a)&&num(b)&&a!==b?(hi==="max"?a>b:a<b):false,num(a)&&num(b)&&a!==b?(hi==="max"?b>a:b<a):false];
+  const myPct=Math.round(R.pos/n*100),opPct=Math.round(o.pos/n*100);
+  const rows=[["Слов/мин"].concat(cell(R.w,o.wpm,"max")),["Точность"].concat(cell(R.acc,o.acc,"max")),["Ошибки"].concat(cell(R.err,o.err,"min")),["Время, с"].concat(cell(R.sec,o.t,"min")),["Прогресс"].concat(cell(myPct,opPct,"max"))];
+  const f=(l,v)=>l==="Точность"||l==="Прогресс"?(num(v)?v+"%":"—"):(num(v)?v:"—");
+  $("#cmp").innerHTML='<div class="cmp"><div class="ch"><div>'+avEl(UID,NAME,48)+'<b>Ты</b></div><div></div><div>'+o.av+'<b>'+esc(o.name)+'</b></div></div>'
+    +rows.map(r=>'<div class="cr"><span class="'+(r[3]?"w":"")+'">'+f(r[0],r[1])+'</span><small>'+r[0]+'</small><span class="'+(r[4]?"w":"")+'">'+f(r[0],r[2])+'</span></div>').join("")+'</div>';
+  fillAv($("#cmp"));
+}
 // ---------- Итог и рекорды ----------
 function finish(failed){
   if(G.done)return;G.done=true;endTimer();kin.blur();
@@ -538,8 +698,8 @@ function finish(failed){
   $("#rTitle").textContent=D?(D.oppLeft?"Соперник вышел: победа":D.botWon?"Поражение":"Победа!"):failed?"Три ошибки — раунд окончен":"Раунд завершён";
   $("#rWpm").textContent=w;$("#rAcc").textContent=acc+"%";$("#rErr").textContent=G.err;$("#rTime").textContent=Math.round(sec);
   $("#rBest").textContent=Math.max(prev,isRec?w:0);
-  $("#rRec").textContent=isRec?"Новый рекорд!":(D?(D.net?"Соперник печатал ":"Бот печатал ")+Math.round(D.wpm)+" слов/мин":"");
-  if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w);if(!D&&!failed)submitScore(w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
+  $("#rRec").textContent=isRec?"Новый рекорд!":"";
+  resX(w,acc,sec);if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w,false,{acc,err:G.err,t:Math.round(sec)});if(!D&&!failed)submitScore(w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
   show("result");gp(0);setTimeout(showAd,700);
 }
 $("#start").onclick=()=>{D=null;startGame()};
@@ -552,12 +712,13 @@ function bestAll(){const r=LS("recs")||{};return Math.max(0,...Object.values(r))
 function drawHome(){$("#homeBest").textContent=bestAll()}
 function statsHtml(){const s=LS("stats")||{games:0,chars:0,accSum:0,best:0};
   return `<b>Моя статистика</b><div class="res"><div><b>${s.games}</b><small>раундов</small></div><div><b>${s.best}</b><small>лучший слов/мин</small></div><div><b>${s.games?Math.round(s.accSum/s.games):0}%</b><small>средняя точность</small></div><div><b>${s.chars}</b><small>верных символов</small></div></div>`}
-function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pLogin").style.display=AUTH?"none":"block";$("#pIdTxt").textContent="Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
+function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pAv").innerHTML=avEl(UID,NAME,64);fillAv($("#pAv"));$("#pAvBtn").style.display=AUTH?"inline-block":"none";refreshBadges();$("#pLogin").style.display=AUTH?"none":"block";$("#pLogin").textContent=YSDK?"Войти через Яндекс":(PEND?"Подтвердить почту":"Войти / Регистрация");$("#pOut").style.display=EMAIL?"block":"none";$("#pIdTxt").textContent=EMAIL?(AUTH?"Почта: "+EMAIL+". Друзья найдут тебя по нику.":"Почта "+EMAIL+" не подтверждена."):"Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
 $("#bStats").onclick=()=>modal(statsHtml());
 $("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
 drawHome();drawProfile();
-$("#nickSave").onclick=()=>{if(AUTH){toast("Ник берётся из аккаунта Яндекса");return}const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
-QUIET=true;ysInit().then(()=>fbReady()).then(initNet).catch(()=>{}).then(()=>{QUIET=false});
+$("#nickSave").onclick=()=>{if(AUTH){toast(EMAIL?"Ник закреплён за аккаунтом":"Ник берётся из аккаунта Яндекса");return}const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
+$("#aBack").onclick=()=>tab("profile");$("#pOut").onclick=()=>{FA&&FA.signOut().then(()=>location.reload())};
+QUIET=true;ysInit().then(()=>fbReady()).then(authBoot).catch(()=>{}).then(()=>{QUIET=false});
 </script>
 </body>
 </html>
