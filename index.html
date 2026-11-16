@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="theme-color" content="#0d0d0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Гонка печати</title>
 <style>
@@ -93,6 +97,17 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 .ch,.cr{display:grid;grid-template-columns:1fr 1.1fr 1fr;align-items:center;text-align:center}
 .ch{margin-bottom:10px}.ch div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px;overflow:hidden;min-width:0}.ch .av{margin:0}.ch b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cr{padding:9px 0;border-top:1px solid var(--line)}.cr small{color:var(--gray)}.cr span{font-size:20px;font-weight:700}.cr span.w{color:var(--green)}
+#spin{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:9}
+#spinWin{position:relative;overflow:hidden;border-radius:16px;background:var(--card);border:1px solid var(--line);height:112px}
+#spinStrip{display:flex;height:100%;align-items:center;will-change:transform}
+#spinMark{position:absolute;left:50%;top:0;bottom:0;width:3px;background:var(--red);box-shadow:0 0 12px var(--red);transform:translateX(-50%)}
+.tile{flex:0 0 84px;margin:0 3px;background:var(--card);border:2px solid;border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px}
+.tile small{color:var(--gray);font-size:11px}
+.tw{background:none;border:0;padding:0;color:inherit;cursor:pointer}.tw .tile{flex:none;width:100%;margin:0}
+.tw.lock{opacity:.3;filter:grayscale(1)}.tw.eq .tile{outline:2px solid var(--green)}
+#coll{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#onb{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:9}
+.achg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.ach{background:var(--card2);border-radius:14px;padding:10px 4px;text-align:center;font-size:12px}.ach span{font-size:24px;display:block}.ach.lock{opacity:.3;filter:grayscale(1)}
 </style>
 </head>
 <body>
@@ -111,6 +126,7 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
       <p class="sub" style="margin:4px 0 12px">Две случайные фразы, обычная сложность.</p>
       <button class="btn" id="quick">Играть</button>
     </div>
+    <div class="card" id="dailyCard"></div>
     <div class="card"><b>Твой рекорд</b><div class="big" id="homeBest">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p></div>
   </section>
 
@@ -151,7 +167,7 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 
   <section class="scr" id="s-wait"><h1 id="wTitle">Ожидание</h1><div class="card" style="text-align:center"><div class="big" id="wCode" style="letter-spacing:6px"></div><p class="sub" id="wMsg" style="margin:0"></p></div><button class="btn" id="wBot" style="display:none;margin-bottom:8px">Играть с ботом</button><button class="btn ghost" id="wCancel">Отмена</button></section>
 
-  <section class="scr" id="s-top"><button class="pill" data-go="games">‹ Назад</button><h1>Топ игроков</h1><div class="row" id="tpTabs"></div><div id="tpList" style="margin-top:12px"></div></section>
+  <section class="scr" id="s-top"><button class="pill" data-go="games">‹ Назад</button><h1>Топ игроков</h1><div class="row" id="tpCats" style="margin-bottom:8px"></div><div class="row" id="tpTabs"></div><div id="tpList" style="margin-top:12px"></div></section>
 
   <section class="scr" id="s-friends"><button class="pill" data-go="games">‹ Назад</button><h1>Друзья</h1>
     <div class="card"><b>Найти игрока</b><div class="row" style="margin-top:8px"><input id="fq" placeholder="Ник или ID" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="fgo">Найти</button></div><div id="fres" style="margin-top:8px"></div></div>
@@ -164,7 +180,7 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 
   <section class="scr" id="s-auth"><button class="pill" id="aBack">‹ Назад</button><div id="aBox" style="margin-top:12px"></div></section>
 
-  <section class="scr" id="s-shop"><h1>Магазин</h1><div class="card"><p class="sub" style="margin:0">Скоро здесь появятся темы и значки.</p></div></section>
+  <section class="scr" id="s-shop"><h1>Кейсы</h1><div class="card hero"><div style="display:flex;justify-content:space-between;align-items:center"><b>Баланс</b><span id="shopBal" style="font-size:26px;font-weight:800"></span></div><p class="sub" style="margin:6px 0 0;font-size:13px">Монеты дают за «Испытание дня» и за победы над настоящими игроками.</p></div><div id="cases"></div><h2>Коллекция рамок</h2><p class="sub" style="font-size:13px;margin:0 0 8px">Нажми на рамку, чтобы надеть или снять её. Её увидят другие игроки.</p><div id="coll"></div></section>
 
   <section class="scr" id="s-profile">
     <h1>Профиль</h1>
@@ -172,6 +188,9 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
     <button class="btn ghost" id="pLogin">Войти / Регистрация</button><button class="btn ghost" id="pOut" style="display:none;margin-top:8px">Выйти из аккаунта</button></div>
     <div class="card"><b>Ник и ID</b><p class="sub" id="pIdTxt" style="margin:4px 0 10px"></p><div class="row"><input id="nickIn" maxlength="16" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="nickSave">Сохранить</button></div></div>
     <div class="card" id="pStats"></div>
+    <div class="card" id="pAch"></div>
+    <div class="card" id="pInst" style="display:none"><b>Установить как приложение</b><p class="sub" id="instTxt" style="margin:6px 0 10px"></p><button class="btn ghost" id="instBtn" style="display:none">Установить</button></div>
+    <div class="card"><button class="btn ghost" id="pPriv">Политика конфиденциальности</button><button class="btn ghost" id="pDel" style="display:none;margin-top:8px">Удалить аккаунт</button></div>
   </section>
 
   <section class="scr" id="s-play">
@@ -188,8 +207,10 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
     <div class="big" id="rWpm">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p>
     <div class="rec" id="rRec"></div>
     <div id="cmp"></div>
+    <div id="rDaily"></div>
     <div class="res" id="rRes"><div><b id="rAcc">0%</b><small>точность</small></div><div><b id="rErr">0</b><small>ошибок</small></div><div><b id="rTime">0</b><small>секунд</small></div><div><b id="rBest">0</b><small>рекорд режима</small></div></div>
     <button class="btn" id="again">Ещё раз</button>
+    <button class="btn" id="rematch" style="display:none;margin-top:8px">Реванш</button>
     <button class="btn ghost" id="toMenu" style="margin-top:8px">В меню</button>
   </section>
 </main>
@@ -202,7 +223,9 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 </div>
 <div id="modal"><div id="sheet"></div></div>
 <div id="toast"></div>
+<div id="onb"></div>
 <div id="cd"></div>
+<div id="spin"><div style="width:100%;max-width:520px;padding:16px"><div id="spinWin"><div id="spinStrip"></div><div id="spinMark"></div></div><div id="spinRes"></div></div></div>
 <input id="kin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text">
 
 <script>
@@ -212,6 +235,12 @@ const PHRASES=["В субботу друзья дошли до песчаног�
 const QUOTES=[["Белеет парус одинокий в тумане моря голубом.","М. Ю. Лермонтов"],["Я помню чудное мгновенье: передо мной явилась ты.","А. С. Пушкин"],["Служить бы рад, прислуживаться тошно.","А. С. Грибоедов"],["Какой же русский не любит быстрой езды!","Н. В. Гоголь"],["В человеке должно быть всё прекрасно: и лицо, и одежда, и душа, и мысли.","А. П. Чехов"],["Рукописи не горят.","М. А. Булгаков"],["Красота спасёт мир.","Ф. М. Достоевский"],["Все счастливые семьи похожи друг на друга, каждая несчастливая семья несчастлива по-своему.","Л. Н. Толстой"],["Чему бы жизнь нас ни учила, но сердце верит в чудеса.","А. А. Фет"],["Мы все глядим в Наполеоны.","А. С. Пушкин"]];
 const WORDS="дом лес река море гора поле небо звезда ветер дождь снег солнце луна город улица мост окно дверь стол стул книга песня друг семья школа урок мечта дорога поезд корабль остров берег волна птица рыба кошка собака лошадь яблоко хлеб молоко чай сад цветок трава камень огонь вода свет тень ночь утро вечер день неделя месяц год часы время слово буква текст звук голос музыка гитара скрипка картина город деревня площадь парк пляж песок ветка листок облако туман радуга гроза ручей озеро пещера тропа шаг бег прыжок игра победа рекорд скорость точность ритм клавиша экран телефон письмо ответ вопрос ключ замок карта маршрут путь привал костёр палатка рюкзак фонарь компас закат рассвет полдень зима весна лето осень".replace(/ё/g,"е").split(" ");
 
+// ---------- Расширенный контент ----------
+PHRASES.push(...["Над озером медленно поднималось солнце.", "Сегодня мы пойдём в музей и в парк.", "Дети построили во дворе снежную крепость.", "В кофейне пахло корицей и свежей выпечкой.", "Новый учитель объяснил тему очень понятно.", "Вдалеке послышался гул приближающегося поезда.", "Он аккуратно сложил письмо и убрал в стол.", "На причале рыбаки чинили старые сети.", "Река разлилась и затопила низкий берег.", "Мы заблудились, но вовремя нашли тропу.", "Гроза прошла, и над лугом выросла радуга.", "Утром в саду распустились первые тюльпаны.", "В рюкзаке лежали карта, фонарь и бутерброды.", "Пёс радостно встретил хозяина у калитки.", "Хорошая книга всегда находит своего читателя.", "Весь вечер мы играли в шахматы и пили чай.", "Лодка тихо скользила по спокойной воде.", "На стене тикали старые деревянные часы.", "Она долго выбирала подарок и купила шарф.", "Зимний лес замер под тяжёлым снегом.", "Фонари загорелись, и улица стала уютной.", "Мастер аккуратно собрал часы по винтикам.", "Птицы вернулись с юга и запели в роще.", "Мы поднялись на вершину и увидели долину.", "Папа научил меня кататься на велосипеде.", "Ночью в окно тихо стучал мелкий дождь.", "В поле колосилась пшеница, золотая и тёплая.", "Самолёт набрал высоту и скрылся за облаками.", "Старый мост скрипел, но держал всех нас.", "Мы нарисовали карту и спрятали клад в лесу.", "Лучший отдых после работы это прогулка пешком.", "На подоконнике зеленел маленький кактус.", "Утренний кофе помог мне проснуться и собраться.", "В городе открылся новый парк с фонтанами.", "Шторм утих, и море снова стало гладким.", "Он читал вслух, а мы слушали затаив дыхание.", "Весной ручьи бегут по склонам с весёлым шумом.", "К вечеру ветер стих и стало совсем тихо.", "Охотник вернулся из леса с пустыми руками.", "Мы собрали ягоды и сварили душистое варенье.", "Вечерний город переливался сотнями огней.", "Сначала подумай, а потом отвечай на вопрос.", "Тренер велел нам бегать каждое утро.", "На рассвете туман окутал всю долину.", "Трамвай звякнул и медленно поехал по рельсам.", "Каждый день понемногу, и результат будет заметен.", "На полке стояли книги, собранные за много лет.", "Дорога вела через поле к далёкой деревне.", "Он завёл будильник и лёг спать пораньше.", "Музыканты настроили инструменты и вышли на сцену.", "Малыш сделал первые шаги и засмеялся.", "В большом саду созрели яблоки и груши.", "Из трубы поднимался дым, пахло горячим хлебом.", "Мы поспорили о фильме и так и не договорились.", "Облака плыли низко, и казалось, что скоро дождь.", "Старая карта привела нас к заброшенному маяку.", "Если стараться каждый день, всё получится.", "Снегопад укрыл город мягким белым одеялом.", "Они долго шли и наконец вышли к реке.", "Бабушка вязала тёплые носки для всей семьи.", "Волны мягко набегали на тёплый песок.", "Самое интересное всегда начинается неожиданно.", "Он вытащил из кармана ключ и открыл дверь.", "В библиотеке было тихо, пахло бумагой и пылью.", "Лето закончилось, но воспоминания остались.", "Наш поезд прибыл на станцию точно по расписанию.", "Девочка нарисовала солнце, дом и большую собаку.", "Утром выпал первый снег, и город притих.", "Ветер раскачивал ветви и гнал по небу тучи.", "Мы встретились у фонтана и пошли гулять.", "Хороший план это половина успешного дела.", "Радио тихо играло старую добрую мелодию.", "Над полем кружил ястреб и высматривал добычу.", "Мы развели костёр и жарили на нём хлеб.", "Спокойная работа каждый день приносит результат."]);
+QUOTES.push(...[["Мой дядя самых честных правил, когда не в шутку занемог.", "А. С. Пушкин"], ["Мороз и солнце; день чудесный!", "А. С. Пушкин"], ["Я памятник себе воздвиг нерукотворный.", "А. С. Пушкин"], ["Привычка свыше нам дана: замена счастию она.", "А. С. Пушкин"], ["Любви все возрасты покорны.", "А. С. Пушкин"], ["Блажен, кто смолоду был молод.", "А. С. Пушкин"], ["Есть упоение в бою.", "А. С. Пушкин"], ["Не дай мне Бог сойти с ума.", "А. С. Пушкин"], ["Унылая пора! Очей очарованье!", "А. С. Пушкин"], ["Я вас любил: любовь ещё, быть может, в душе моей угасла не совсем.", "А. С. Пушкин"], ["Пока свободою горим, пока сердца для чести живы, мой друг, отчизне посвятим души прекрасные порывы!", "А. С. Пушкин"], ["Октябрь уж наступил — уж роща отряхает последние листы с нагих своих ветвей.", "А. С. Пушкин"], ["Скажи-ка, дядя, ведь недаром Москва, спаленная пожаром, французу отдана?", "М. Ю. Лермонтов"], ["И скучно и грустно, и некому руку подать в минуту душевной невзгоды.", "М. Ю. Лермонтов"], ["Выхожу один я на дорогу; сквозь туман кремнистый путь блестит.", "М. Ю. Лермонтов"], ["Русь, куда ж несёшься ты? Дай ответ.", "Н. В. Гоголь"], ["Чему смеётесь? Над собою смеётесь!", "Н. В. Гоголь"], ["Нет уз святее товарищества!", "Н. В. Гоголь"], ["Редкая птица долетит до середины Днепра.", "Н. В. Гоголь"], ["Краткость — сестра таланта.", "А. П. Чехов"], ["Всё смешалось в доме Облонских.", "Л. Н. Толстой"], ["Нет величия там, где нет простоты, добра и правды.", "Л. Н. Толстой"], ["Тварь ли я дрожащая или право имею?", "Ф. М. Достоевский"], ["Человек есть тайна. Её надо разгадать.", "Ф. М. Достоевский"], ["Счастливые часов не наблюдают.", "А. С. Грибоедов"], ["А судьи кто?", "А. С. Грибоедов"], ["Свежо предание, а верится с трудом.", "А. С. Грибоедов"], ["И дым отечества нам сладок и приятен.", "А. С. Грибоедов"], ["А Васька слушает да ест.", "И. А. Крылов"], ["У сильного всегда бессильный виноват.", "И. А. Крылов"], ["А воз и ныне там.", "И. А. Крылов"], ["Услужливый дурак опаснее врага.", "И. А. Крылов"], ["Никогда и ничего не просите! Сами предложат и сами всё дадут.", "М. А. Булгаков"], ["Умом Россию не понять, аршином общим не измерить.", "Ф. И. Тютчев"], ["Нам не дано предугадать, как слово наше отзовётся.", "Ф. И. Тютчев"], ["Люблю грозу в начале мая.", "Ф. И. Тютчев"], ["Молчи, скрывайся и таи и чувства и мечты свои.", "Ф. И. Тютчев"], ["Шёпот, робкое дыханье, трели соловья.", "А. А. Фет"], ["Не жалею, не зову, не плачу, всё пройдёт, как с белых яблонь дым.", "С. А. Есенин"], ["Ночь, улица, фонарь, аптека, бессмысленный и тусклый свет.", "А. А. Блок"], ["Кому на Руси жить хорошо?", "Н. А. Некрасов"], ["Послушайте! Ведь если звёзды зажигают, значит, это кому-нибудь нужно?", "В. В. Маяковский"], ["О великий, могучий, правдивый и свободный русский язык!", "И. С. Тургенев"], ["Рождённый ползать летать не может.", "М. Горький"], ["Я научилась просто, мудро жить: смотреть на небо и молиться Богу.", "А. А. Ахматова"], ["Свеча горела на столе, свеча горела.", "Б. Л. Пастернак"]]);
+WORDS.push(..."автобус аэропорт бабочка банан барабан бассейн белка берёза билет блокнот болото борщ ботинок браслет бровь бумага бутылка вагон ваза вафля верблюд вертолёт вилка виноград вишня вокзал волк ворона воробей выставка газета галстук гвоздь герой глобус голубь гриб груша гусь дельфин дерево диван дорожка дракон дрова дуб душа ёлка жираф жук завод зайчик замок запах заря звонок зебра зеркало змея зонтик иголка игрушка изба индюк йогурт кабина кактус калитка камин канат капуста карандаш карман картошка касса кастрюля катер квартира кедр кисть клавиатура клён клубника книжка колесо колокол коляска комната конверт конфета коридор коробка корова космос костюм кофе кошелёк кран крыльцо крыша кувшин кукла курица лампа лебедь лёд лента лестница лимон лиса ложка лук лыжи магазин малина мандарин маска мастер медведь мёд мешок микрофон молния молоток монета морковь муравей мыло мышь навес наушники небоскрёб нитка носок огурец одеяло орёл остров открытка отпуск очки павлин палатка пальто панда парус паспорт пекарня пенал пингвин пирог планета платье плащ площадка подарок подушка полка помидор порт посылка почта правило праздник пчела пятно ракета расчёска ромашка рубашка ручка рыбак сапог сарай свеча светофор свитер сказка скамейка скворец слон смородина собор сосна спичка стадион стакан стена стрекоза суп сыр тарелка телевизор тетрадь тигр топор тропинка тумба удочка улитка улыбка умывальник фартук фейерверк фонарик фотоаппарат хлопок холодильник хомяк цирк чайник чемодан черепаха чернила шапка шарф шахматы шкаф шоколад щётка яблоня ягода яйцо ящерица бегать брать будить варить вести взять видеть вставать говорить готовить грустить гулять двигаться делать думать жить заходить звонить знать играть идти искать катать класть купить лежать лететь любить мечтать мыть наблюдать начинать нести нравиться обнимать открывать отдыхать отвечать петь писать плавать пить помнить понимать работать расти рисовать сидеть слушать смеяться смотреть собирать спать спрашивать стоять строить танцевать терять трудиться ходить читать чувствовать шагать шептать большой весёлый высокий глубокий горячий громкий далёкий добрый жёлтый зелёный золотой красивый лёгкий маленький мягкий новый нежный острый печальный просторный прозрачный радостный светлый серый сильный синий смелый солнечный спокойный старый сухой тёмный тихий тяжёлый узкий умный холодный чистый широкий яркий аллея апельсин арбуз архитектор бегемот библиотека бочка бригада будущее вариант вечеринка вершина взгляд витрина внимание возраст волнение впечатление выбор вывод гармония гордость граница дистанция достижение дружба желание задача закон здание знание идея история качество команда компания контраст курс лагерь маршрут масштаб метод механизм модель настроение навык находка образ общество опыт ответ отряд пауза победа поддержка полёт порядок причина проект путешествие равновесие радость разговор район рассвет режим рекорд решение ритм свобода скорость событие сообщение состав способность стимул судьба терпение точность традиция тренировка удача успех усилие уважение фантазия цель честность чудо шанс этап энергия эффект".replace(/ё/g,"е").split(" "));
+{const u=[...new Set(WORDS)];WORDS.length=0;WORDS.push(...u)}
+{const m=new Map();QUOTES.forEach(q=>m.set(q[0],q));QUOTES.length=0;QUOTES.push(...m.values())}
 // ---------- Утилиты ----------
 const $=s=>document.querySelector(s);
 const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
@@ -232,14 +261,14 @@ $("#bSnd").onclick=()=>{soundOn=!soundOn;SV("snd",soundOn);drawSnd();sClick()};d
 
 // ---------- Навигация ----------
 function show(id){if(id!=="play"&&id!=="wait")kin.blur();document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id==="s-"+id));$("main").scrollTop=0;$("#nav").style.display=(id==="play")?"none":"flex"}
-function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile()}
+function tab(t){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));show(t);if(t==="home")drawHome();if(t==="profile")drawProfile();if(t==="shop")drawShop()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>tab(b.dataset.go));
 document.querySelectorAll(".game").forEach(b=>b.onclick=()=>{const g=b.dataset.g;if(g!=="train"&&needAuth())return;if(g==="train")show("train");else if(g==="duel"){drawDuel();show("duel")}else if(g==="net"){findMatch()}else if(g==="top")openTop();else if(g==="friends")openFriends();else if(g==="chat")openChat();else toast("Появится на следующих этапах. Нужен вход через Яндекс.")});
 $("#pLogin").onclick=()=>AUTH?toast("Ты уже вошёл"):login();
 
 // ---------- Настройки тренировки ----------
-const MODES=[["phrases","Фразы"],["quotes","Цитаты"],["time","На время"],["words","На слова"]];
+const MODES=[["phrases","Фразы"],["quotes","Цитаты"],["time","На время"],["words","На слова"],["weak","Слабые буквы"]];
 const DIFFS=[["normal","Обычная"],["expert","Эксперт"],["master","Мастер"]];
 const DINFO={normal:"Текст как есть: с заглавными и знаками препинания.",expert:"Без знаков препинания и заглавных, только буквы и пробелы.",master:"Как «Эксперт», но три ошибки — и раунд закончен."};
 const S={mode:"phrases",sub:10,diff:"normal",bot:"mid"};
@@ -258,14 +287,16 @@ drawSetup();
 let G=null,D=null;
 function prep(t){t=t.replace(/ё/g,"е").replace(/Ё/g,"Е");if(S.diff!=="normal")t=norm(t).replace(/[.,!?;:«»"—\-–]/g,"").replace(/\s+/g," ").trim();return t}
 function buildText(){
+  if(S.mode==="weak"){const wl=weakLetters(3);let c=WORDS.filter(w=>wl.some(l=>w.includes(l)));if(c.length<5)c=WORDS;const a=[];for(let i=0;i<20;i++)a.push(pick(c,"wk"));return {t:a.join(" "),a:"Слабые буквы: "+wl.join(", ")}}
   if(S.mode==="phrases")return {t:prep(pick(PHRASES,"p")+" "+pick(PHRASES,"p2")),a:""};
   if(S.mode==="quotes"){const q=pick(QUOTES,"q");return {t:prep(q[0]),a:"— "+q[1]}}
   if(S.mode==="time")return {t:prep([0,1,2,3].map(()=>pick(PHRASES,"p")).join(" ")),a:""};
   const n=S.sub,a=[];for(let i=0;i<n;i++)a.push(pick(WORDS,"w"));return {t:a.join(" "),a:""};
 }
 function startGame(){
+  if(!D&&S.mode==="weak"&&!weakLetters(3)){toast("Пока мало данных о буквах: сыграй несколько раундов");return}
   const b=D?{t:D.text,a:""}:buildText();
-  G={text:b.t,pos:0,total:0,ok:0,err:0,t0:0,spans:[],done:false,timer:null,limit:(S.mode==="time"&&!D)?60:0,locked:false,
+  G={text:b.t,pos:0,total:0,ok:0,err:0,t0:0,spans:[],done:false,timer:null,limit:(S.mode==="time"&&!D)?60:0,locked:false,lt:{},
      blind:$("#m-blind").checked,far:$("#m-far").checked,nostat:$("#m-nostat").checked};
   const box=$("#box");box.querySelectorAll("span").forEach(s=>s.remove());
   addSpans(b.t);
@@ -287,7 +318,7 @@ function mark(){
 function press(ch){
   if(!G||G.done||G.locked)return;
   if(!G.t0){G.t0=Date.now();G.timer=setInterval(upd,200)}
-  const want=G.text[G.pos];G.total++;
+  const want=G.text[G.pos];G.total++;const wk=norm(want),okk=norm(ch)===wk;if(/[а-я]/.test(wk)){const q=G.lt[wk]||(G.lt[wk]=[0,0]);q[0]++;if(!okk)q[1]++}
   if(norm(ch)===norm(want)){
     G.ok++;G.spans[G.pos].className=G.blind?"bl":"ok";G.pos++;$("#miss").classList.remove("on");sClick();
     if(G.limit&&G.text.length-G.pos<40){const more=prep(pick(PHRASES,"p")+" "+pick(PHRASES,"p2"));G.text+=" "+more;addSpans(" "+more)}
@@ -422,7 +453,7 @@ $("#wCancel").onclick=netCancel;
 $("#wBot").onclick=()=>{netCancel();startDuel()};
 // ---------- Топ, друзья, чат ----------
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let FR={},FRI=false,INV=null,INIT=false,HB=()=>{},MS=[],CH=false,lastSend=0,lastTxt="";S.tab="day";
+let FR={},FRI=false,INV=null,INIT=false,HB=()=>{},MS=[],CH=false,lastSend=0,lastTxt="";S.tab="day";S.cat="train";
 const HID=()=>LS("hid")||[],dayKey=()=>new Date(srvNow()).toISOString().slice(0,10).replace(/-/g,"");
 const SVT=()=>firebase.database.ServerValue.TIMESTAMP,CL=()=>$("#modal").classList.remove("on");
 const guard=f=>()=>fbReady().then(()=>{initNet();return f()}).catch(e=>{if(e)toast(errText(e))});
@@ -435,18 +466,20 @@ function initNet(){
     modal("<b>"+esc(v.name)+" вызывает тебя на дуэль</b><button class=\"btn\" id=\"invOk\" style=\"margin-top:12px\">Принять</button>");
     $("#invOk").onclick=()=>{CL();INV=null;refreshBadges();pre();joinRoom(v.code).then(ok=>ok?waitScr("Дуэль","","Вы в комнате. Ждём старт…"):toast("Комната уже занята"))}});
 }
-function submitScore(w){
-  if(!DB||w<1||w>400)return;const v=c=>(!c||w>c.wpm)?{name:NAME,wpm:w}:undefined;
-  DB.ref("scores/all/"+UID).transaction(v);DB.ref("scores/day/"+dayKey()+"/"+UID).transaction(v);
+function submitScore(w,failed){
+  if(!DB||!AUTH||failed||w<1||w>400)return;
+  const cat=!D?"train":D.net?(D.botWon||D.oppLeft?null:"pvp"):(D.botWon?null:"bot");if(!cat)return;
+  const v=c=>(!c||w>c.wpm)?(D&&!D.net?{name:NAME,wpm:w,lvl:D.lvl}:{name:NAME,wpm:w}):undefined;
+  DB.ref("board/"+cat+"/all/"+UID).transaction(v);DB.ref("board/"+cat+"/day/"+dayKey()+"/"+UID).transaction(v);
 }
 // Топ
 const openTop=guard(()=>{show("top");drawTop()});
 function drawTop(){
-  chips($("#tpTabs"),[["day","Сегодня"],["all","За всё время"]],"tab",drawTop);
-  const r=S.tab==="all"?DB.ref("scores/all"):DB.ref("scores/day/"+dayKey());
+  chips($("#tpCats"),[["train","Тренировка"],["bot","Против бота"],["pvp","Против игроков"]],"cat",drawTop);chips($("#tpTabs"),[["day","Сегодня"],["all","За всё время"]],"tab",drawTop);
+  const r=S.tab==="all"?DB.ref("board/"+S.cat+"/all"):DB.ref("board/"+S.cat+"/day/"+dayKey());
   r.orderByChild("wpm").limitToLast(20).once("value").then(x=>{
     const a=[];x.forEach(c=>{a.push([c.key,c.val()])});a.reverse();
-    $("#tpList").innerHTML=a.length?a.map(([k,v],i)=>'<button class="card game" data-u="'+k+'"><b style="width:28px">'+(i+1)+'</b>'+avEl(k,v.name,36)+'<span><b>'+esc(v.name)+'</b></span><span class="tag">'+v.wpm+' сл/мин</span></button>').join(""):'<p class="sub">Пока никого. Сыграй тренировку первым!</p>';fillAv($("#tpList"));
+    $("#tpList").innerHTML=a.length?a.map(([k,v],i)=>'<button class="card game" data-u="'+k+'"><b style="width:28px">'+(i+1)+'</b>'+avEl(k,v.name,36)+'<span><b>'+esc(v.name)+'</b></span><span class="tag">'+v.wpm+' сл/мин'+(v.lvl?' · '+LV[v.lvl]:'')+'</span></button>').join(""):'<p class="sub">Пока никого. Сыграй тренировку первым!</p>';fillAv($("#tpList"));
   }).catch(e=>toast(errText(e)));
 }
 $("#tpList").onclick=e=>{const b=e.target.closest("[data-u]");if(b)showPlayer(b.dataset.u)};
@@ -454,7 +487,7 @@ function showPlayer(uid){
   Promise.all([DB.ref("players/"+uid).once("value"),DB.ref("scores/all/"+uid).once("value")]).then(([p,sc])=>{
     const pv=p.val()||{},sv=sc.val()||{},name=pv.name||sv.name||"Игрок",on=pv.seen&&srvNow()-pv.seen<70000,st=FR[uid]&&FR[uid].st;
     let btn=uid===UID?"":st==="ok"?'<p class="sub">Вы друзья</p>':st==="out"?'<p class="sub">Заявка отправлена</p>':st==="in"?'<button class="btn" id="pf">Принять заявку</button>':'<button class="btn" id="pf">Добавить в друзья</button>';
-    modal(avEl(uid,name,64)+'<b style="font-size:20px">'+esc(name)+'</b><p class="sub">Лучший результат: '+(sv.wpm||0)+' слов/мин · '+(on?"онлайн":"не в сети")+'</p>'+btn);fillAv($("#sheet"));
+    modal(avEl(uid,name,64)+'<b style="font-size:20px">'+esc(name)+'</b><p class="sub">Лучший результат: '+(sv.wpm||0)+' слов/мин · '+(on?"онлайн":"не в сети")+'</p>'+btn+(uid===UID?"":'<button class="btn ghost" id="pfRep" style="margin-top:8px">Пожаловаться на игрока</button>'));fillAv($("#sheet"));if($("#pfRep"))$("#pfRep").onclick=()=>{CL();DB.ref("chat/reports").push({k:"profile",u:uid,by:UID,ts:SVT()}).then(()=>toast("Жалоба отправлена"))};
     if($("#pf"))$("#pf").onclick=()=>{CL();act(st==="in"?"acc":"add",uid,name)};
   }).catch(e=>toast(errText(e)));
 }
@@ -528,17 +561,17 @@ function setPlayer(){
   if(YAUTH){const id=PL.getUniqueID();if(id)UID="y"+cyrb(id).toString(36);const n=String(PL.getName&&PL.getName()||"").trim();if(n)NAME=n.slice(0,16)}
 }
 function cloudSave(){
-  const d={recs:LS("recs")||{},stats:LS("stats")||{}};
+  const d={recs:LS("recs")||{},stats:LS("stats")||{},coins:LS("coins")||0,daily:LS("daily")||{},inv:LS("inv")||{own:[],eq:null},ach:LS("ach")||{},cnt:LS("cnt")||{},letters:LS("letters")||{},hist:LS("hist")||[],ts:LS("ts")||0};
   if(YAUTH&&PL&&PL.setData)PL.setData(d).catch(()=>{});
   else if(FA&&FA.currentUser&&DB)DB.ref("users/"+UID+"/data").set(d).catch(()=>{});
 }
 function merge(d){
-  d=d||{};const r=LS("recs")||{},cr=d.recs||{};Object.keys(cr).forEach(k=>{if(!(r[k]>=cr[k]))r[k]=cr[k]});SV("recs",r);
+  d=d||{};if((d.ts||0)>(LS("ts")||0)){SV("coins",d.coins||0);SV("daily",d.daily||{});SV("inv",d.inv||LS("inv")||{own:[],eq:null});SV("ach",d.ach||LS("ach")||{});SV("cnt",d.cnt||LS("cnt")||{});SV("letters",d.letters||LS("letters")||{});SV("hist",d.hist||LS("hist")||[]);SV("ts",d.ts)}const r=LS("recs")||{},cr=d.recs||{};Object.keys(cr).forEach(k=>{if(!(r[k]>=cr[k]))r[k]=cr[k]});SV("recs",r);
   const ls=LS("stats")||{games:0},cs=d.stats||{games:0};if((cs.games||0)>(ls.games||0))SV("stats",cs);
   drawHome();drawProfile();
 }
 function cloudLoad(){
-  if(YAUTH&&PL)return PL.getData(["recs","stats"]).then(merge).catch(()=>{});
+  if(YAUTH&&PL)return PL.getData(["recs","stats","coins","daily","inv","ach","cnt","letters","hist","ts"]).then(merge).catch(()=>{});
   if(FA&&FA.currentUser&&DB)return DB.ref("users/"+UID+"/data").once("value").then(x=>merge(x.val())).catch(()=>{});
 }
 function ysInit(){
@@ -605,7 +638,7 @@ function drawVerify(){
 function onUser(u){
   if(REG||!u)return;
   EMAIL=u.email;if(!u.emailVerified){PEND=u;AUTH=false;drawProfile();return}PEND=null;UID=u.uid;AUTH=true;
-  return DB.ref("users/"+u.uid+"/nick").once("value").then(x=>{if(x.val())NAME=x.val();initNet();HB();drawProfile();return cloudLoad()}).catch(()=>{});
+  return DB.ref("users/"+u.uid+"/nick").once("value").then(x=>{if(x.val())NAME=x.val();initNet();HB();drawProfile();return Promise.resolve(cloudLoad()).then(syncFrame)}).catch(()=>{});
 }
 function authBoot(){
   if(YAUTH){initNet();return}
@@ -625,7 +658,7 @@ function setAv(u,v){if(!v)return;document.querySelectorAll(".av").forEach(e=>{if
 function fillAv(root){
   if(!DB)return;
   (root||document).querySelectorAll(".av").forEach(e=>{const u=e.dataset.av;if(!u)return;
-    if(u in AVC){setAv(u,AVC[u]);return}
+    setFr(u);if(!(u in FRC)&&!FRP[u])FRP[u]=DB.ref("frames/"+u).once("value").then(x=>{FRC[u]=x.val()||"";setFr(u)}).catch(()=>{});if(u in AVC){setAv(u,AVC[u]);return}
     if(!AVP[u])AVP[u]=DB.ref("avatars/"+u).once("value").then(x=>{AVC[u]=x.val()||"";setAv(u,AVC[u])}).catch(()=>{});
   });
 }
@@ -662,7 +695,7 @@ function seenChat(){const t=MS.reduce((a,m)=>Math.max(a,m[1].ts||0),LS("chatSeen
 // ---------- Сравнение с соперником ----------
 let R=null;const BOTACC={slow:98,mid:96,fast:93};
 function resX(w,acc,sec){
-  R={w,acc,err:G.err,sec:Math.round(sec),pos:G.pos,len:G.text.length};
+  $("#rDaily").innerHTML="";$("#rematch").style.display=(D&&D.net&&D.oppId&&!D.oppLeft)?"block":"none";R={w,acc,err:G.err,sec:Math.round(sec),pos:G.pos,len:G.text.length};
   $("#rRes").style.display=D?"none":"";$("#rWpm").style.display=D?"none":"";$("#rWpm").nextElementSibling.style.display=D?"none":"";
   if(D)renderCmp();else $("#cmp").innerHTML="";
 }
@@ -685,6 +718,145 @@ function renderCmp(){
     +rows.map(r=>'<div class="cr"><span class="'+(r[3]?"w":"")+'">'+f(r[0],r[1])+'</span><small>'+r[0]+'</small><span class="'+(r[4]?"w":"")+'">'+f(r[0],r[2])+'</span></div>').join("")+'</div>';
   fillAv($("#cmp"));
 }
+// ---------- Испытание дня ----------
+const LV={slow:"медл.",mid:"сред.",fast:"быстр."},LVN={slow:"медленного",mid:"среднего",fast:"быстрого"};
+const ykey=()=>new Date(srvNow()-864e5).toISOString().slice(0,10).replace(/-/g,""),coins=()=>LS("coins")||0;
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function daily(){
+  const day=dayKey(),r=rng(cyrb(day)%2147483647),k=Math.floor(r()*6),sp=[30,40,50,60,70][Math.floor(r()*5)];
+  const tr=x=>!x.bot&&!x.pvp&&!x.failed;
+  if(k===0)return{day,kind:"t",mode:"phrases",title:"Скоростные фразы",desc:"В режиме «Фразы» наберите "+sp+" слов/мин или больше.",reward:20+Math.round(sp/2),check:x=>tr(x)&&x.mode==="phrases"&&x.wpm>=sp};
+  if(k===1)return{day,kind:"t",mode:"words",sub:25,title:"Точная работа",desc:"«На слова» (25): закончите с точностью не ниже 98%.",reward:35,check:x=>tr(x)&&x.mode==="words"&&x.sub===25&&x.acc>=98};
+  if(k===2)return{day,kind:"t",mode:"quotes",title:"Чистая цитата",desc:"Наберите цитату без единой ошибки.",reward:30,check:x=>tr(x)&&x.mode==="quotes"&&x.err===0};
+  if(k===3)return{day,kind:"t",mode:"time",title:"Минутный спринт",desc:"«На время» (60 с): "+(sp-5)+" слов/мин или больше.",reward:25+Math.round(sp/2),check:x=>tr(x)&&x.mode==="time"&&x.wpm>=sp-5};
+  if(k===4){const lvl=sp<=40?"slow":sp<=60?"mid":"fast";return{day,kind:"b",lvl,title:"Победа над ботом",desc:"Обыграйте "+LVN[lvl]+" бота в дуэли.",reward:{slow:25,mid:40,fast:60}[lvl],check:x=>!!x.bot&&x.bot.lvl===lvl&&x.bot.won}}
+  return{day,kind:"t",mode:"phrases",diff:"expert",title:"Режим эксперта",desc:"«Фразы» на сложности «Эксперт»: "+(sp-10)+" слов/мин или больше.",reward:30+Math.round(sp/2),check:x=>tr(x)&&x.mode==="phrases"&&x.diff==="expert"&&x.wpm>=sp-10};
+}
+function chk(x){
+  const c=daily(),st=LS("daily")||{};if((st.day===c.day&&st.done)||!c.check(x))return;
+  const streak=st.last===ykey()?(st.streak||0)+1:1,gain=c.reward+Math.min(streak,7)*2;
+  SV("daily",{day:c.day,done:true,streak,last:c.day});SV("coins",coins()+gain);SV("ts",Date.now());cloudSave();drawDaily();
+  $("#rDaily").innerHTML+='<div class="card hero" style="text-align:center"><b>🎯 Испытание дня выполнено!</b><div class="big" style="font-size:36px">+'+gain+' 🪙</div><p class="sub" style="margin:0">Серия: '+streak+' дн.</p></div>';
+  ping("🎯 Испытание выполнено! +"+gain+" 🪙");
+}
+function drawDaily(){
+  const e=$("#dailyCard");if(!e)return;
+  const c=daily(),st=LS("daily")||{},done=st.day===c.day&&st.done;
+  e.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>🎯 Испытание дня</b><span class="tag">🪙 '+coins()+'</span></div><p style="margin:10px 0 2px;font-size:18px;font-weight:700">'+c.title+'</p><p class="sub" style="margin:0 0 12px;font-size:14px">'+c.desc+'</p>'
+    +(done?'<div class="rec" style="margin:0 0 4px">Выполнено ✔ Новое испытание завтра</div>':'<button class="btn" id="dGo">Начать · награда +'+c.reward+' 🪙</button>')
+    +((st.streak&&(st.last===dayKey()||st.last===ykey()))?'<p class="sub" style="margin:8px 0 0;font-size:13px">Серия: '+st.streak+' дн.</p>':'');
+  if($("#dGo"))$("#dGo").onclick=()=>startChallenge(c);
+}
+function startChallenge(c){
+  if(c.kind==="b"){if(needAuth())return;S.bot=c.lvl;startDuel();return}
+  S.mode=c.mode;S.sub=c.sub||10;S.diff=c.diff||"normal";drawSetup();D=null;startGame();
+}
+// ---------- Кейсы ----------
+const FRC={},FRP={};
+const FRAMES=[
+ {id:"c1",n:"Серая",r:0,css:"0 0 0 3px #8a8a94"},{id:"c2",n:"Синяя",r:0,css:"0 0 0 3px #4a90e2"},{id:"c3",n:"Зелёная",r:0,css:"0 0 0 3px #3ecf6e"},
+ {id:"r1",n:"Фиолетовая",r:1,css:"0 0 0 3px #a259ff"},{id:"r2",n:"Оранжевая",r:1,css:"0 0 0 3px #ff9f1c"},{id:"r3",n:"Бирюзовое сияние",r:1,css:"0 0 0 3px #19d3da,0 0 12px #19d3da"},
+ {id:"e1",n:"Красное сияние",r:2,css:"0 0 0 3px #ff3b3b,0 0 14px #ff3b3b"},{id:"e2",n:"Неоновая роза",r:2,css:"0 0 0 3px #ff4fd8,0 0 14px #ff4fd8"},
+ {id:"l1",n:"Золото",r:3,css:"0 0 0 3px #ffd34d,0 0 18px #ffb300"},{id:"l2",n:"Королевская",r:3,css:"0 0 0 2px #0d0d0f,0 0 0 5px #ffd34d,0 0 0 7px #ff3b3b,0 0 18px #ffb300"}];
+const RN=["Обычная","Редкая","Эпическая","Легендарная"],RC=["#8a8a94","#4a90e2","#a259ff","#ffb300"],REF=[5,15,40,100];
+const CASES=[{id:"b",n:"Бронзовый кейс",ic:"📦",price:30,w:[30,50,16,3.5,.5]},{id:"g",n:"Золотой кейс",ic:"🎁",price:100,min:100,w:[10,25,40,20,5]}];
+const INVG=()=>LS("inv")||{own:[],eq:null};
+function setFr(u){const f=FRAMES.find(x=>x.id===FRC[u]);document.querySelectorAll(".av").forEach(e=>{if(e.dataset.av===u)e.style.boxShadow=f?f.css:""})}
+function setInv(v){SV("inv",v);SV("ts",Date.now());cloudSave()}
+function syncFrame(){const v=INVG();FRC[UID]=v.eq||"";setFr(UID);if(DB&&AUTH)DB.ref("frames/"+UID).set(v.eq||null).catch(()=>{})}
+function pickItem(w){let t=Math.random()*100,i=0;for(;i<4;i++){t-=w[i];if(t<0)break}if(i===0)return null;const L=FRAMES.filter(f=>f.r===i-1);return L[Math.floor(Math.random()*L.length)]}
+const tile=f=>f?'<div class="tile" style="border-color:'+RC[f.r]+'"><span class="av" style="width:44px;height:44px;margin:0;font-size:20px;box-shadow:'+f.css+'">'+esc((NAME||"?").charAt(0).toUpperCase())+'</span><small>'+f.n+'</small></div>':'<div class="tile" style="border-color:#3a3a42"><span style="font-size:30px;height:44px;display:flex;align-items:center">💨</span><small>Пусто</small></div>';
+function drawShop(){
+  const g=(LS("stats")||{}).games||0;
+  $("#shopBal").textContent="🪙 "+coins();
+  $("#cases").innerHTML=CASES.map(c=>{const lock=c.min&&g<c.min;return '<div class="card"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:34px">'+(lock?"🔒":c.ic)+'</span><div style="flex:1"><b>'+c.n+'</b><div class="sub" style="font-size:12px;margin:2px 0 0">'+c.w.map((p,i)=>(i?RN[i-1]:"Пусто")+" "+p+"%").join(" · ")+'. Дубликат возвращает часть монет.</div></div></div><button class="btn'+(lock?" ghost":"")+'" data-case="'+c.id+'" style="margin-top:10px">'+(lock?"Откроется после "+c.min+" игр ("+g+"/"+c.min+")":"Открыть за "+c.price+" 🪙")+'</button></div>'}).join("");
+  const v=INVG();
+  $("#coll").innerHTML=FRAMES.map(f=>'<button class="tw'+(v.own.includes(f.id)?"":" lock")+(v.eq===f.id?" eq":"")+'" data-fr="'+f.id+'">'+tile(f)+'</button>').join("");
+}
+$("#s-shop").onclick=e=>{
+  const c=e.target.closest("[data-case]"),f=e.target.closest("[data-fr]");
+  if(c)openCase(c.dataset.case);
+  else if(f){const v=INVG(),id=f.dataset.fr;if(!v.own.includes(id)){toast("Эту рамку можно выбить из кейса");return}v.eq=v.eq===id?null:id;setInv(v);syncFrame();drawShop()}
+};
+function openCase(id){
+  const c=CASES.find(x=>x.id===id),g=(LS("stats")||{}).games||0;
+  if(c.min&&g<c.min){toast(c.n+" откроется после "+c.min+" игр (у тебя "+g+")");return}
+  if(coins()<c.price){toast("Не хватает монет");return}
+  const item=pickItem(c.w),v=INVG(),dup=!!item&&v.own.includes(item.id),ref=dup?REF[item.r]:0;
+  if(item&&!dup)v.own.push(item.id);
+  SV("coins",coins()-c.price+ref);setInv(v);achCheck();
+  const N=40,P=34,st=$("#spinStrip"),o=$("#spin");
+  o.style.display="flex";$("#spinRes").innerHTML="";
+  st.innerHTML=Array.from({length:N},(_,i)=>tile(i===P?item:pickItem(c.w))).join("");
+  st.style.transition="none";st.style.transform="translateX(0)";
+  const off=P*90+45-$("#spinWin").offsetWidth/2+(Math.random()*40-20);
+  void st.offsetWidth;st.style.transition="transform 4s cubic-bezier(.12,.7,.15,1)";st.style.transform="translateX(-"+off+"px)";
+  for(let k=0;k<10;k++)setTimeout(()=>beep(400+k*45,.03,"square",.03),150+k*340);
+  setTimeout(()=>{
+    const col=item?RC[item.r]:"#8a8a94";
+    $("#spinRes").innerHTML='<div class="card" style="text-align:center;border-color:'+col+';margin-top:12px"><b style="color:'+col+'">'+(item?RN[item.r]:"Пусто")+'</b><div class="tw" style="width:110px;margin:8px auto">'+tile(item)+'</div><p class="sub" style="margin:0 0 10px">'+(!item?"Ничего не выпало. Повезёт в следующий раз.":dup?"Дубликат: +"+ref+" 🪙":"Новый предмет в коллекции!")+'</p><button class="btn" id="spAgain">Открыть ещё</button><button class="btn ghost" id="spClose" style="margin-top:8px">Закрыть</button></div>';
+    if(item&&item.r>=2)sWin();else beep(item?520:200,.2,"triangle",.07);
+    $("#spAgain").onclick=()=>openCase(id);
+    $("#spClose").onclick=()=>{o.style.display="none";drawShop()};
+  },4300);
+}
+function pvpReward(){
+  if(!(D&&D.net&&!D.botWon&&!D.oppLeft&&D.opp&&D.opp.pos>=5))return;
+  const st=LS("pvpw")||{},n=st.day===dayKey()?st.n:0;
+  if(n>=5){$("#rDaily").innerHTML+='<p class="sub" style="text-align:center">Лимит наград за победы на сегодня исчерпан (5 в день).</p>';return}
+  SV("pvpw",{day:dayKey(),n:n+1});SV("coins",coins()+8);SV("ts",Date.now());cloudSave();drawDaily();
+  $("#rDaily").innerHTML+='<div class="card hero" style="text-align:center"><b>🏆 Победа над игроком</b><div class="big" style="font-size:36px">+8 🪙</div><p class="sub" style="margin:0">Наград сегодня: '+(n+1)+' из 5</p></div>';
+  ping("🏆 +8 🪙 за победу над игроком");
+}
+// ---------- Буквы, достижения, установка, приватность ----------
+function mergeLetters(){const L=LS("letters")||{};Object.keys(G.lt||{}).forEach(k=>{const a=L[k]||[0,0];L[k]=[a[0]+G.lt[k][0],a[1]+G.lt[k][1]]});SV("letters",L);SV("ts",Date.now())}
+function weakLetters(n){const L=LS("letters")||{},a=Object.keys(L).filter(k=>L[k][0]>=15&&L[k][1]>0).sort((x,y)=>L[y][1]/L[y][0]-L[x][1]/L[x][0]).slice(0,n);return a.length?a:null}
+document.addEventListener("click",e=>{if(e.target.id==="wkGo"){CL();S.mode="weak";S.diff="normal";drawSetup();D=null;startGame()}});
+function cnts(failed,acc){
+  const c=LS("cnt")||{pvp:0,bot:0,perf:0};
+  if(D&&D.net&&!D.botWon&&!D.oppLeft)c.pvp=(c.pvp||0)+1;
+  if(D&&!D.net&&!D.botWon)c.bot=(c.bot||0)+1;
+  if(!failed&&acc===100&&G.ok>=20)c.perf=(c.perf||0)+1;
+  SV("cnt",c);
+}
+const ACH=[{id:"g1",i:"🎮",n:"Первый раунд",f:c=>c.games>=1},{id:"g100",i:"💯",n:"100 игр",f:c=>c.games>=100},{id:"w50",i:"⚡",n:"50 слов/мин",f:c=>c.best>=50},{id:"w80",i:"🚀",n:"80 слов/мин",f:c=>c.best>=80},{id:"perf",i:"🎯",n:"Раунд без ошибок",f:c=>c.perf>=1},{id:"bot5",i:"🤖",n:"5 побед над ботами",f:c=>c.bot>=5},{id:"pvp10",i:"⚔️",n:"10 побед над игроками",f:c=>c.pvp>=10},{id:"str5",i:"🔥",n:"5 дней подряд",f:c=>c.streak>=5},{id:"col5",i:"🖼️",n:"5 рамок в коллекции",f:c=>c.fr>=5}];
+function achCheck(){
+  const st=LS("stats")||{},cn=LS("cnt")||{},dl=LS("daily")||{},done=LS("ach")||{};
+  const c={games:st.games||0,best:st.best||0,pvp:cn.pvp||0,bot:cn.bot||0,perf:cn.perf||0,streak:dl.streak||0,fr:INVG().own.length},nw=[];
+  ACH.forEach(a=>{if(!done[a.id]&&a.f(c)){done[a.id]=1;nw.push(a.n)}});
+  if(nw.length){SV("ach",done);SV("ts",Date.now());cloudSave();ping("🏅 Достижение: "+nw.join(", "));drawAch()}
+}
+function drawAch(){
+  const e=$("#pAch");if(!e)return;const d=LS("ach")||{};
+  e.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>Достижения</b><span class="tag">'+ACH.filter(a=>d[a.id]).length+'/'+ACH.length+'</span></div><div class="achg">'+ACH.map(a=>'<div class="ach'+(d[a.id]?"":" lock")+'"><span>'+a.i+'</span>'+a.n+'</div>').join("")+'</div>';
+}
+$("#rematch").onclick=()=>{
+  if(!D||!D.net||!D.oppId)return;const oid=D.oppId;pre();
+  mkRoom(false).then(code=>{attach(code,"host");DB.ref("invites/"+oid).set({from:UID,name:NAME,code,t:SVT()});waitScr("Реванш",code,"Ждём согласия соперника");clearTimeout(waitT);waitT=setTimeout(()=>waitScr("Реванш","","Соперник не ответил"),60000)}).catch(e=>{if(e)toast(errText(e))});
+};
+let DEF=null;const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEF=e;instInit()});
+function instInit(){const t=$("#instTxt"),b=$("#instBtn");if(!t)return;if(DEF){t.textContent="Игра откроется как обычное приложение, без адресной строки.";b.style.display="block"}else{b.style.display="none";t.textContent=IOS?"Нажми «Поделиться» в Safari, затем «На экран Домой».":"В меню браузера (⋮) выбери «Установить приложение» или «Добавить на главный экран»."}}
+$("#instBtn").onclick=()=>{if(DEF){DEF.prompt();DEF=null;$("#instBtn").style.display="none"}};
+if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0&&window.top===window&&!/yandex/.test(location.hostname))navigator.serviceWorker.register("sw.js").catch(()=>{});
+$("#pPriv").onclick=()=>modal("<b>Политика конфиденциальности</b><p class=\"sub\">Игра «Гонка печати» хранит: почту (только для входа и сброса пароля), ник, аватар, рамку, результаты, статистику, список друзей и сообщения общего чата. Данные хранятся в сервисе Google Firebase. Мы не продаём данные и не показываем почту другим игрокам. Ник, аватар, результаты и сообщения в чате видны другим игрокам. Аккаунт и данные можно удалить в Профиле кнопкой «Удалить аккаунт». Жалобы на игроков и аватары можно отправить из профиля игрока или из чата. По вопросам пишите автору игры.</p>");
+$("#pDel").onclick=()=>{
+  const u=FA&&FA.currentUser;if(!u)return;
+  if(!confirm("Удалить аккаунт навсегда? Рекорды, монеты и рамки пропадут."))return;
+  const pw=prompt("Введи пароль для подтверждения");if(!pw)return;
+  u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw)).then(()=>DB.ref("users/"+u.uid+"/nick").once("value")).then(x=>{
+    const nk=x.val()?String(x.val()).toLowerCase():null,o={};
+    o["players/"+u.uid]=null;o["avatars/"+u.uid]=null;o["frames/"+u.uid]=null;["train","bot","pvp"].forEach(c=>{o["board/"+c+"/all/"+u.uid]=null});
+    return DB.ref().update(o).then(()=>nk?DB.ref("nicks/"+nk).once("value").then(n=>n.val()===u.uid?DB.ref("nicks/"+nk).remove():0):0).then(()=>DB.ref("users/"+u.uid).remove());
+  }).then(()=>u.delete()).then(()=>{try{localStorage.clear()}catch(e){}location.reload()}).catch(x=>toast(aerr(x)));
+};
+function onboard(){
+  if(LS("onb")||!$("#onb"))return;
+  const P=[["⌨️","Печатай без ошибок","Нажми не ту букву, и курсор останется на месте: это «миссклик». Ошибка засчитывается, пока не нажмёшь верную букву."],["⚔️","Играй с другими","Дуэли с ботом и настоящими игроками, топ, друзья и общий чат. Для онлайна нужен аккаунт: он один на все устройства."],["🪙","Копи монеты","Выполняй «Испытание дня» и побеждай игроков. Монеты можно потратить на кейсы с рамками для аватара."]];
+  let i=0;const o=$("#onb");o.style.display="flex";
+  const draw=()=>{const q=P[i];o.innerHTML='<div class="card" style="max-width:420px;width:calc(100% - 32px);text-align:center"><div style="font-size:54px">'+q[0]+'</div><h2 style="margin:6px 0">'+q[1]+'</h2><p class="sub">'+q[2]+'</p><div style="margin:10px 0 14px">'+P.map((_,k)=>'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;background:'+(k===i?"var(--red)":"var(--line)")+'"></span>').join("")+'</div><button class="btn" id="onN">'+(i<2?"Дальше":"Играть")+'</button></div>';$("#onN").onclick=()=>{if(i<2){i++;draw()}else{SV("onb",1);o.style.display="none"}}};
+  draw();
+}
 // ---------- Итог и рекорды ----------
 function finish(failed){
   if(G.done)return;G.done=true;endTimer();kin.blur();
@@ -694,12 +866,12 @@ function finish(failed){
   const recs=LS("recs")||{};const prev=recs[key]||0;const isRec=w>prev&&!failed&&!(D&&D.botWon);
   if(isRec){recs[key]=w;SV("recs",recs)}
   const st=LS("stats")||{games:0,chars:0,accSum:0,best:0};
-  st.games++;st.chars+=G.ok;st.accSum+=acc;st.best=Math.max(st.best,failed?0:w);SV("stats",st);cloudSave();
+  st.games++;st.chars+=G.ok;st.accSum+=acc;st.best=Math.max(st.best,failed?0:w);SV("stats",st);mergeLetters();const hh=LS("hist")||[];if(!failed){hh.push(w);SV("hist",hh.slice(-30))}cnts(failed,acc);cloudSave();
   $("#rTitle").textContent=D?(D.oppLeft?"Соперник вышел: победа":D.botWon?"Поражение":"Победа!"):failed?"Три ошибки — раунд окончен":"Раунд завершён";
   $("#rWpm").textContent=w;$("#rAcc").textContent=acc+"%";$("#rErr").textContent=G.err;$("#rTime").textContent=Math.round(sec);
   $("#rBest").textContent=Math.max(prev,isRec?w:0);
   $("#rRec").textContent=isRec?"Новый рекорд!":"";
-  resX(w,acc,sec);if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w,false,{acc,err:G.err,t:Math.round(sec)});if(!D&&!failed)submitScore(w);if(isRec)sWin();else beep(520,.2,"triangle",.07);
+  resX(w,acc,sec);if(D&&D.net)netEnd(G.pos>=G.text.length&&!D.botWon&&!D.oppLeft,w,false,{acc,err:G.err,t:Math.round(sec)});submitScore(w,failed);pvpReward();achCheck();chk({mode:S.mode,sub:S.mode==="words"?S.sub:0,diff:S.diff,wpm:w,acc,err:G.err,failed:!!failed,bot:D&&!D.net?{lvl:D.lvl,won:!D.botWon}:null,pvp:!!(D&&D.net)});if(isRec)sWin();else beep(520,.2,"triangle",.07);
   show("result");gp(0);setTimeout(showAd,700);
 }
 $("#start").onclick=()=>{D=null;startGame()};
@@ -709,15 +881,23 @@ $("#toMenu").onclick=()=>{D=null;tab("games")};
 
 // ---------- Главная, профиль, статистика, правила ----------
 function bestAll(){const r=LS("recs")||{};return Math.max(0,...Object.values(r))}
-function drawHome(){$("#homeBest").textContent=bestAll()}
-function statsHtml(){const s=LS("stats")||{games:0,chars:0,accSum:0,best:0};
-  return `<b>Моя статистика</b><div class="res"><div><b>${s.games}</b><small>раундов</small></div><div><b>${s.best}</b><small>лучший слов/мин</small></div><div><b>${s.games?Math.round(s.accSum/s.games):0}%</b><small>средняя точность</small></div><div><b>${s.chars}</b><small>верных символов</small></div></div>`}
-function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pAv").innerHTML=avEl(UID,NAME,64);fillAv($("#pAv"));$("#pAvBtn").style.display=AUTH?"inline-block":"none";refreshBadges();$("#pLogin").style.display=AUTH?"none":"block";$("#pLogin").textContent=YSDK?"Войти через Яндекс":(PEND?"Подтвердить почту":"Войти / Регистрация");$("#pOut").style.display=EMAIL?"block":"none";$("#pIdTxt").textContent=EMAIL?(AUTH?"Почта: "+EMAIL+". Друзья найдут тебя по нику.":"Почта "+EMAIL+" не подтверждена."):"Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
+function drawHome(){$("#homeBest").textContent=bestAll();drawDaily()}
+function statsHtml(){
+  const s=LS("stats")||{games:0,chars:0,accSum:0,best:0},h=LS("hist")||[],wl=weakLetters(5),L=LS("letters")||{};
+  let ch;
+  if(h.length>=2){
+    const mx=Math.max(...h),mn=Math.min(...h),rg=Math.max(1,mx-mn),pts=h.map((v,i)=>(i*(300/(h.length-1))).toFixed(1)+","+(90-(v-mn)/rg*80).toFixed(1));
+    ch='<div class="lbl">Слов/мин за последние раунды</div><svg viewBox="0 0 300 100" style="width:100%;background:var(--card2);border-radius:14px"><polyline fill="none" stroke="#d92c2c" stroke-width="3" stroke-linejoin="round" points="'+pts.join(" ")+'"/><text x="6" y="14" fill="#6e6e78" font-size="10">'+mx+'</text><text x="6" y="96" fill="#6e6e78" font-size="10">'+mn+'</text></svg>';
+  }else ch='<p class="sub" style="font-size:13px">Сыграй ещё пару раундов, и здесь появится график прогресса.</p>';
+  const wk=wl?'<div class="lbl">Слабые буквы (процент ошибок)</div><div class="row">'+wl.map(k=>'<span class="chip">'+k.toUpperCase()+" · "+Math.round(L[k][1]/L[k][0]*100)+"%</span>").join("")+'</div><button class="btn" id="wkGo" style="margin-top:10px">Тренировать слабые буквы</button>':'<p class="sub" style="font-size:13px">Слабые буквы появятся после нескольких раундов.</p>';
+  return '<b>Моя статистика</b><div class="res"><div><b>'+s.games+'</b><small>раундов</small></div><div><b>'+s.best+'</b><small>лучший слов/мин</small></div><div><b>'+(s.games?Math.round(s.accSum/s.games):0)+'%</b><small>средняя точность</small></div><div><b>'+s.chars+'</b><small>верных символов</small></div></div>'+ch+wk;
+}
+function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").textContent=NAME;$("#pAv").innerHTML=avEl(UID,NAME,64);fillAv($("#pAv"));$("#pAvBtn").style.display=AUTH?"inline-block":"none";drawAch();$("#pDel").style.display=EMAIL&&AUTH?"block":"none";$("#pInst").style.display=(!YSDK&&!isStandalone()&&window.top===window)?"block":"none";instInit();refreshBadges();$("#pLogin").style.display=AUTH?"none":"block";$("#pLogin").textContent=YSDK?"Войти через Яндекс":(PEND?"Подтвердить почту":"Войти / Регистрация");$("#pOut").style.display=EMAIL?"block":"none";$("#pIdTxt").textContent=EMAIL?(AUTH?"Почта: "+EMAIL+". Друзья найдут тебя по нику.":"Почта "+EMAIL+" не подтверждена."):"Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
 $("#bStats").onclick=()=>modal(statsHtml());
 $("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
 drawHome();drawProfile();
 $("#nickSave").onclick=()=>{if(AUTH){toast(EMAIL?"Ник закреплён за аккаунтом":"Ник берётся из аккаунта Яндекса");return}const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
-$("#aBack").onclick=()=>tab("profile");$("#pOut").onclick=()=>{FA&&FA.signOut().then(()=>location.reload())};
+$("#aBack").onclick=()=>tab("profile");setTimeout(onboard,500);$("#pOut").onclick=()=>{FA&&FA.signOut().then(()=>location.reload())};
 QUIET=true;ysInit().then(()=>fbReady()).then(authBoot).catch(()=>{}).then(()=>{QUIET=false});
 </script>
 </body>
