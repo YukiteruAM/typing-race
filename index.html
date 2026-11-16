@@ -123,18 +123,28 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 @keyframes frPl{0%,100%{box-shadow:0 0 0 3px #ffd34d,0 0 8px #ffb300}50%{box-shadow:0 0 0 4px #fff3b0,0 0 26px 6px #ffb300}}
 @keyframes frGl{0%,100%{box-shadow:0 0 0 3px #a259ff,0 0 10px #a259ff}50%{box-shadow:0 0 0 3px #19d3da,0 0 24px #19d3da}}
 .fa-rb{animation:frRb 4s linear infinite}.fa-pl{animation:frPl 1.6s ease-in-out infinite}.fa-gl{animation:frGl 3s ease-in-out infinite}
+.logo{flex:1;font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;letter-spacing:-.3px;white-space:nowrap}.logo span{font-size:22px}
+header{padding:12px 14px 6px}
+#bCoin b{font-weight:800}
+.lk{display:none}.guest .lk{display:inline-flex}
+.qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.qrow button{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--text);padding:12px 4px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.3)}.qrow button:active{transform:scale(.97)}.qrow span{display:block;font-size:24px;margin-bottom:2px}
+.pbar{height:6px;background:var(--card2);border-radius:4px;margin:-2px 0 12px;overflow:hidden}.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--rt,#e53838));transition:width .15s}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ccard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 8px;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .12s}.ccard:active{transform:scale(.97)}.ccard .ci{font-size:38px}.ccard b{font-size:14px;text-align:center}.ccard small{color:var(--gray);font-size:13px}.ccard.lock{opacity:.55}
 </style>
 </head>
 <body>
 <div id="app">
 <header>
+  <div class="logo"><span>⌨️</span>Гонка печати</div>
+  <button class="pill" id="bCoin" aria-label="Монеты">🪙 <b id="hCoin">0</b></button>
   <button class="pill" id="bSnd" aria-label="Звук">🔊</button>
-  <button class="pill grow" id="bStats">Моя статистика</button>
-  <button class="pill grow" id="bRules">Правила</button>
+  <button class="pill" id="bMenu" aria-label="Меню">☰</button>
 </header>
 <main>
   <section class="scr on" id="s-home">
-    <h1>Гонка печати</h1>
+    <h1>Готов печатать?</h1>
     <p class="sub">Печатай быстро и точно. Ошибся — исправляй сразу.</p>
     <div class="card hero">
       <b>Быстрый старт</b>
@@ -142,16 +152,17 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
       <button class="btn" id="quick">Играть</button>
     </div>
     <div class="card" id="dailyCard"></div>
+    <div class="qrow"><button data-q="duel"><span>⚔️</span>Дуэль</button><button data-q="top"><span>🏆</span>Топ</button><button data-q="friends"><span>👥</span>Друзья<i class="bd nb" id="bd-q"></i></button><button data-q="chat"><span>💬</span>Чат</button></div>
     <div class="card"><b>Твой рекорд</b><div class="big" id="homeBest">0</div><p class="sub" style="text-align:center;margin:0">слов в минуту</p></div>
   </section>
 
   <section class="scr" id="s-games">
     <h1>Игры</h1>
     <button class="card game" data-g="train"><span class="ic">⌨️</span><span><b>Тренировка</b><small>Фразы, цитаты, на время, на слова</small></span></button>
-    <button class="card game" data-g="duel"><span class="ic">⚔️</span><span><b>С соперником</b><small>Бот трёх скоростей, онлайн скоро</small></span></button>
-    <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span></button>
-    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span><span class="bd" id="bd-friends" style="margin-left:auto"></span></button>
-    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span><span class="bd" id="bd-chat" style="margin-left:auto"></span></button>
+    <button class="card game" data-g="duel"><span class="ic">⚔️</span><span><b>С соперником</b><small>Бот, случайный соперник, дуэль по коду</small></span><span class="tag lk">🔒 вход</span></button>
+    <button class="card game" data-g="top"><span class="ic">🏆</span><span><b>Топ игроков</b><small>Сегодня и за всё время</small></span><span class="tag lk">🔒 вход</span></button>
+    <button class="card game" data-g="friends"><span class="ic">👥</span><span><b>Друзья</b><small>Заявки и вызов на дуэль</small></span><span class="tag lk">🔒 вход</span><span class="bd" id="bd-friends" style="margin-left:auto"></span></button>
+    <button class="card game" data-g="chat"><span class="ic">💬</span><span><b>Общий чат</b><small>Мировой чат игроков</small></span><span class="tag lk">🔒 вход</span><span class="bd" id="bd-chat" style="margin-left:auto"></span></button>
   </section>
 
   <section class="scr" id="s-train">
@@ -201,7 +212,7 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
     <h1>Профиль</h1>
     <div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span id="pAv"></span><div><b id="pName">Гость</b><div id="pRank" class="sub" style="font-size:13px;margin:2px 0 4px"></div><button class="chip" id="pAvBtn" style="margin-top:6px;display:none">Сменить аватар</button></div></div><input type="file" id="pFile" accept="image/*" style="display:none"><p class="sub" style="margin:4px 0 12px">Войди или зарегистрируйся, чтобы играть онлайн. Без входа доступна только тренировка.</p>
     <button class="btn ghost" id="pLogin">Войти / Регистрация</button><button class="btn ghost" id="pOut" style="display:none;margin-top:8px">Выйти из аккаунта</button></div>
-    <div class="card"><b>Ник и ID</b><p class="sub" id="pIdTxt" style="margin:4px 0 10px"></p><div class="row"><input id="nickIn" maxlength="16" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="nickSave">Сохранить</button></div></div>
+    <div class="card" id="pNickCard"><b>Ник и ID</b><p class="sub" id="pIdTxt" style="margin:4px 0 10px"></p><div class="row"><input id="nickIn" maxlength="16" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:16px;padding:12px"><button class="chip sel" id="nickSave">Сохранить</button></div></div>
     <div class="card" id="pStats"></div>
     <div class="card" id="pAch"></div>
     <div class="card" id="pInst" style="display:none"><b>Установить как приложение</b><p class="sub" id="instTxt" style="margin:6px 0 10px"></p><button class="btn ghost" id="instBtn" style="display:none">Установить</button></div>
@@ -211,6 +222,7 @@ nav button.on::before{content:"";position:absolute;top:-6px;left:30%;right:30%;h
 
   <section class="scr" id="s-play">
     <div id="stats"><div><b id="st-a">0%</b><small id="st-al">Прогресс</small></div><div><b id="st-w">0</b><small>слов/мин</small></div><div><b id="st-c">100%</b><small>Точность</small></div><div><b id="st-e">0</b><small>Ошибки</small></div></div>
+    <div class="pbar"><i id="pb"></i></div>
     <div id="bars" style="display:none"><div class="bar"><small>Ты</small><i id="b-me"></i></div><div class="bar"><small id="b-botn">Бот</small><i id="b-bot"></i></div></div>
     <div id="box"></div>
     <div id="miss">Миссклик! Выбери другую букву</div>
@@ -355,7 +367,7 @@ function upd(){
   $("#st-a").textContent=G.limit?Math.max(0,Math.ceil(G.limit-sec))+" с":Math.round(G.pos/G.text.length*100)+"%";
   $("#st-w").textContent=wpm(sec);
   $("#st-c").textContent=(G.total?Math.round(G.ok/G.total*100):100)+"%";
-  $("#st-e").textContent=G.err;if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed()),acc:G.total?Math.round(G.ok/G.total*100):100,err:G.err})}}
+  $("#st-e").textContent=G.err;$("#pb").style.width=(G.limit?Math.max(0,100-sec/G.limit*100):G.pos/G.text.length*100)+"%";if(D){setBars();if(D.net&&NET&&Date.now()-NET.lp>250){NET.lp=Date.now();NET.my.update({pos:G.pos,wpm:wpm(elapsed()),acc:G.total?Math.round(G.ok/G.total*100):100,err:G.err})}}
 }
 const kin=$("#kin");const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const foc=()=>{try{kin.focus({preventScroll:true})}catch(e){kin.focus()}};const pre=()=>{if(IOS)foc()};const appEl=$("#app");
 function fit(){const v=window.visualViewport;if(!v||!IOS)return;appEl.style.bottom="auto";appEl.style.top=v.offsetTop+"px";appEl.style.height=v.height+"px";appEl.classList.toggle("kb",v.height<innerHeight*.8);if(document.activeElement===kin)window.scrollTo(0,0)}
@@ -698,12 +710,12 @@ $("#pFile").onchange=e=>{
 };
 function ping(t){toast(t);try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}beep(700,.1,"triangle",.06)}
 function setB(id,n){const e=$("#bd-"+id);if(!e)return;e.textContent=n;e.classList.toggle("on",!!n)}
-function refreshBadges(){
+function refreshBadges(){$("#app").classList.toggle("guest",!AUTH);
   if(INV&&srvNow()-INV.t>=60000)INV=null;
   const fr=Object.keys(FR).filter(k=>FR[k].st==="in").length+(INV?1:0);
   const seen=LS("chatSeen")||0,h=HID();
   const un=$("#s-chat").classList.contains("on")?0:MS.filter(([k,m])=>m.u!==UID&&(m.ts||0)>seen&&!h.includes(m.u)).length;
-  setB("friends",fr);setB("chat",un);setB("games",fr+un);setB("profile",PEND?"!":0);
+  setB("friends",fr);setB("q",fr);setB("chat",un);setB("games",fr+un);setB("profile",PEND?"!":0);
 }
 function startChat(){
   if(CH)return;CH=true;if(LS("chatSeen")==null)SV("chatSeen",srvNow());
@@ -763,7 +775,7 @@ function chk(x){
 function drawDaily(){
   const e=$("#dailyCard");if(!e)return;
   const c=daily(),st=LS("daily")||{},done=st.day===c.day&&st.done;
-  e.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>🎯 Испытание дня</b><span class="tag">🪙 '+coins()+'</span></div><p style="margin:10px 0 2px;font-size:18px;font-weight:700">'+c.title+'</p><p class="sub" style="margin:0 0 12px;font-size:14px">'+c.desc+'</p>'
+  e.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>🎯 Испытание дня</b><span class="tag">сегодня</span></div><p style="margin:10px 0 2px;font-size:18px;font-weight:700">'+c.title+'</p><p class="sub" style="margin:0 0 12px;font-size:14px">'+c.desc+'</p>'
     +(done?'<div class="rec" style="margin:0 0 4px">Выполнено ✔ Новое испытание завтра</div>':'<button class="btn" id="dGo">Начать · награда +'+c.reward+' 🪙</button>')
     +((st.streak&&(st.last===dayKey()||st.last===ykey()))?'<p class="sub" style="margin:8px 0 0;font-size:13px">Серия: '+st.streak+' дн.</p>':'');
   if($("#dGo"))$("#dGo").onclick=()=>startChallenge(c);
@@ -855,8 +867,7 @@ const tile=f=>f?'<div class="tile" style="border-color:'+RC[f.r]+'">'+pv(f)+'<sm
 function drawShop(){
   const g=(LS("stats")||{}).games||0,v=INVG();
   $("#shopBal").textContent="🪙 "+coins();
-  $("#cases").innerHTML=CASES.map(c=>{const lock=c.min&&g<c.min;
-    return'<div class="card"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:34px">'+(lock?"🔒":c.ic)+'</span><div style="flex:1"><b>'+c.n+'</b><div class="sub" style="font-size:12px;margin:2px 0 0">'+(c.types?"Только: "+c.types.map(t=>TYPES.find(x=>x[0]===t)[1].toLowerCase()).join(", ")+". ":"")+c.w.map((p,i)=>p?(i?RN[i-1]:"Пусто")+" "+p+"%":"").filter(Boolean).join(" · ")+'. Дубликат возвращает часть монет.</div></div></div><button class="btn'+(lock?" ghost":"")+'" data-case="'+c.id+'" style="margin-top:10px">'+(lock?"Откроется после "+c.min+" игр ("+g+"/"+c.min+")":"Открыть за "+c.price+" 🪙")+'</button></div>'}).join("");
+  $("#cases").innerHTML='<div class="cgrid">'+CASES.map(c=>{const lock=c.min&&g<c.min;return'<button class="ccard'+(lock?" lock":"")+'" data-case-info="'+c.id+'"><span class="ci">'+(lock?"🔒":c.ic)+'</span><b>'+c.n+'</b><small>'+(lock?c.min+" игр":c.price+" 🪙")+'</small></button>'}).join("")+'</div>';
   $("#collN").textContent=v.own.filter(id=>ITB[id]).length+"/"+IT.length;
   chips($("#collT"),TYPES,"ct",drawShop);
   $("#coll").innerHTML=IT.filter(x=>x.t===S.ct).map(f=>'<button class="tw'+(v.own.includes(f.id)?"":" lock")+(v.eq[f.t]===f.id?" eq":"")+'" data-it="'+f.id+'">'+tile(f)+'</button>').join("");
@@ -871,6 +882,12 @@ $("#s-shop").onclick=e=>{
     v.eq[it.t]=v.eq[it.t]===it.id?"":it.id;setInv(v);syncFrame();drawShop();
   }
 };
+function caseInfo(id){
+  const c=CASES.find(x=>x.id===id),g=(LS("stats")||{}).games||0,lock=c.min&&g<c.min;
+  modal('<div style="text-align:center"><div style="font-size:54px">'+c.ic+'</div><b style="font-size:20px">'+c.n+'</b></div><p class="sub" style="margin:8px 0">'+(c.types?"Только: "+c.types.map(t=>TYPES.find(x=>x[0]===t)[1].toLowerCase()).join(", ")+".":"Выпадают любые предметы.")+" Дубликат возвращает часть монет.</p>"+c.w.map((p,i)=>p?'<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)"><span style="color:'+(i?RC[i-1]:"var(--gray)")+'">'+(i?RN[i-1]:"Пусто")+'</span><b>'+p+'%</b></div>':"").join("")+'<button class="btn'+(lock?" ghost":"")+'" id="cdGo" style="margin-top:12px">'+(lock?"Откроется после "+c.min+" игр ("+g+"/"+c.min+")":"Открыть за "+c.price+" 🪙")+'</button>');
+  $("#cdGo").onclick=()=>{CL();openCase(id)};
+}
+$("#cases").onclick=e=>{const b=e.target.closest("[data-case-info]");if(b)caseInfo(b.dataset.caseInfo)};
 function openCase(id){
   const c=CASES.find(x=>x.id===id),g=(LS("stats")||{}).games||0;
   if(c.min&&g<c.min){toast(c.n+" откроется после "+c.min+" игр (у тебя "+g+")");return}
@@ -1011,12 +1028,15 @@ function statsHtml(){
   const wk=wl?'<div class="lbl">Слабые буквы (процент ошибок)</div><div class="row">'+wl.map(k=>'<span class="chip">'+k.toUpperCase()+" · "+Math.round(L[k][1]/L[k][0]*100)+"%</span>").join("")+'</div><button class="btn" id="wkGo" style="margin-top:10px">Тренировать слабые буквы</button>':'<p class="sub" style="font-size:13px">Слабые буквы появятся после нескольких раундов.</p>';
   return '<b>Моя статистика</b><div class="res"><div><b>'+s.games+'</b><small>раундов</small></div><div><b>'+s.best+'</b><small>лучший слов/мин</small></div><div><b>'+(s.games?Math.round(s.accSum/s.games):0)+'%</b><small>средняя точность</small></div><div><b>'+s.chars+'</b><small>верных символов</small></div></div>'+ch+wk;
 }
-function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").innerHTML=nmEl(UID,NAME,"var(--text)");fillAv($("#pName"));$("#pRank").textContent="Рейтинг: "+(LS("rt")||1000)+" · "+rankName(LS("rt")||1000);$("#pAv").innerHTML=avEl(UID,NAME,64);fillAv($("#pAv"));$("#pAvBtn").style.display=AUTH?"inline-block":"none";drawAch();applyTheme();applyTyped();$("#pDel").style.display=EMAIL&&AUTH?"block":"none";$("#pInst").style.display=(!YSDK&&!isStandalone()&&window.top===window)?"block":"none";instInit();refreshBadges();$("#pLogin").style.display=AUTH?"none":"block";$("#pLogin").textContent=YSDK?"Войти через Яндекс":(PEND?"Подтвердить почту":"Войти / Регистрация");$("#pOut").style.display=EMAIL?"block":"none";$("#pIdTxt").textContent=EMAIL?(AUTH?"Почта: "+EMAIL+". Друзья найдут тебя по нику.":"Почта "+EMAIL+" не подтверждена."):"Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
-$("#bStats").onclick=()=>modal(statsHtml());
-$("#bRules").onclick=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
+function drawProfile(){$("#pStats").innerHTML=statsHtml();$("#pName").innerHTML=nmEl(UID,NAME,"var(--text)");fillAv($("#pName"));$("#pRank").textContent="Рейтинг: "+(LS("rt")||1000)+" · "+rankName(LS("rt")||1000);$("#pAv").innerHTML=avEl(UID,NAME,64);fillAv($("#pAv"));$("#pAvBtn").style.display=AUTH?"inline-block":"none";drawAch();applyTheme();applyTyped();$("#pNickCard").style.display=AUTH&&!EMAIL?"":"none";$("#pDel").style.display=EMAIL&&AUTH?"block":"none";$("#pInst").style.display=(!YSDK&&!isStandalone()&&window.top===window)?"block":"none";instInit();refreshBadges();$("#pLogin").style.display=AUTH?"none":"block";$("#pLogin").textContent=YSDK?"Войти через Яндекс":(PEND?"Подтвердить почту":"Войти / Регистрация");$("#pOut").style.display=EMAIL?"block":"none";$("#pIdTxt").textContent=EMAIL?(AUTH?"Почта: "+EMAIL+". Друзья найдут тебя по нику.":"Почта "+EMAIL+" не подтверждена."):"Твой ID: "+UID+" (по нему тебя найдут друзья)";$("#nickIn").value=NAME}
+const showStats=()=>modal(statsHtml());
+$("#bMenu").onclick=()=>{modal('<b style="font-size:20px">Меню</b><button class="btn ghost" id="mStats" style="margin-top:12px">Моя статистика</button><button class="btn ghost" id="mRules" style="margin-top:8px">Правила</button><button class="btn ghost" id="mPriv" style="margin-top:8px">Политика конфиденциальности</button>');$("#mStats").onclick=()=>{CL();showStats()};$("#mRules").onclick=()=>{CL();showRules()};$("#mPriv").onclick=()=>{CL();$("#pPriv").click()}};
+$("#bCoin").onclick=()=>tab("shop");
+setInterval(()=>{const e=$("#hCoin");if(e)e.textContent=coins()},700);
+const showRules=()=>modal(`<b>Правила</b><p>Печатай текст по одной букве. Регистр не важен: можно писать строчными.</p><p><b>Миссклик.</b> Если нажата не та буква, курсор остаётся на месте, буква вспыхивает красным, а ошибка засчитывается. Двигаться дальше можно только после верной буквы.</p><p><b>Точность</b> = верные нажатия ÷ все нажатия.</p><p><b>Слов/мин</b> считается по 5 символов в слове.</p><p>Режим «Мастер» заканчивается после третьей ошибки.</p>`);
 drawHome();drawProfile();
 $("#nickSave").onclick=()=>{if(AUTH){toast(EMAIL?"Ник закреплён за аккаунтом":"Ник берётся из аккаунта Яндекса");return}const n=$("#nickIn").value.trim();if(n.length<2){toast("Ник от 2 до 16 символов");return}NAME=n;SV("nick",n);HB();drawProfile();toast("Ник сохранён")};
-$("#aBack").onclick=()=>tab("profile");setTimeout(onboard,500);applyTheme();applyTyped();$("#pOut").onclick=()=>{FA&&FA.signOut().then(()=>location.reload())};
+$("#aBack").onclick=()=>tab("profile");setTimeout(onboard,500);applyTheme();applyTyped();setInterval(refreshBadges,3000);refreshBadges();document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>document.querySelector('.game[data-g="'+b.dataset.q+'"]').click());$("#pOut").onclick=()=>{FA&&FA.signOut().then(()=>location.reload())};
 QUIET=true;ysInit().then(()=>fbReady()).then(authBoot).catch(()=>{}).then(()=>{QUIET=false});
 </script>
 </body>
